@@ -4,8 +4,8 @@
   "private": true,
   "type": "commonjs",
   "scripts": {
-    "build": "nest build",
-    "dev": "nest start --watch",
+    "build": "pnpm nest build",
+    "dev": "env-cmd -f .env.development pnpm nest start --watch",
     "start": "node dist/main.js",
     "lint": "eslint \"src/**/*.ts\"",
     "typecheck": "tsc -p tsconfig.json --noEmit",

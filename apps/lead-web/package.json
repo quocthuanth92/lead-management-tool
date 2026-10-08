@@ -3,12 +3,12 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "build": "next build",
-    "dev": "next dev",
-    "start": "next start",
+    "build": "pnpm next build",
+    "dev": "env-cmd -f .env.development pnpm next dev",
+    "start": "pnpm next start",
     "lint": "eslint \"src/**/*.{ts,tsx}\"",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "test": "jest --runInBand --config jest.config.cjs"
+    "test": "pnpm jest --runInBand --config jest.config.cjs"
   },
   "dependencies": {
     "@lead/shared-contracts": "workspace:*",

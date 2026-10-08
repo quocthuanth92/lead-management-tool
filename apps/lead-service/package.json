@@ -4,13 +4,13 @@
   "private": true,
   "type": "commonjs",
   "scripts": {
-    "build": "nest build",
-    "dev": "nest start --watch",
+    "build": "pnpm nest build",
+    "dev": "env-cmd -f .env.development pnpm nest start --watch",
     "start": "node dist/main.js",
     "lint": "eslint \"src/**/*.ts\" \"test/**/*.ts\"",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "test": "jest --runInBand --config jest.config.cjs",
-    "test:integration": "jest --runInBand --config test/jest-integration.config.cjs"
+    "test": "pnpm jest --runInBand --config jest.config.cjs",
+    "test:integration": "pnpm jest --runInBand --config test/jest-integration.config.cjs"
   },
   "dependencies": {
     "@lead/shared-contracts": "workspace:*",

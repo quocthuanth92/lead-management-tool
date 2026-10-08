@@ -100,7 +100,7 @@
 - [X] T039 [P] [US2] Create auth skeleton module and placeholders in apps/lead-service/src/modules/auth/auth.module.ts and apps/lead-service/src/modules/auth/guards/auth.guard.ts
 - [X] T040 [P] [US2] Create users skeleton module in apps/lead-service/src/modules/users/users.module.ts
 - [X] T041 [P] [US2] Create leads hexagonal skeleton (domain/application/infrastructure/interface) in apps/lead-service/src/modules/leads/\*\*
-- [X] T042 [P] [US2] Create lead-activities hexagonal skeleton (domain/application/infrastructure/interface) in apps/lead-service/src/modules/lead-activities/\*\*
+- [X] T042 [P] [US2] Create lead-activities hexagonal skeleton (domain/application/infrastructure/interface) in apps/lead-service/src/modules/leads/\*\*
 - [X] T043 [P] [US2] Create cache module skeleton and Redis adapter port wiring in apps/lead-service/src/modules/cache/\*\*
 - [X] T044 [US2] Create/align health endpoint contract file in specs/002-codebase-scaffolding/contracts/lead-service-health.openapi.yaml
 - [X] T045 [US2] Create/align error-response schema contract file in specs/002-codebase-scaffolding/contracts/error-response.schema.json
@@ -272,7 +272,7 @@ Task: "T037 Create Redis provider module in apps/lead-service/src/core/redis/red
 # Run module skeleton tasks in parallel:
 Task: "T039 Create auth skeleton module in apps/lead-service/src/modules/auth/auth.module.ts"
 Task: "T041 Create leads hexagonal skeleton in apps/lead-service/src/modules/leads/**"
-Task: "T042 Create lead-activities hexagonal skeleton in apps/lead-service/src/modules/lead-activities/**"
+Task: "T042 Create lead-activities hexagonal skeleton in apps/lead-service/src/modules/leads/**"
 ```
 
 ---

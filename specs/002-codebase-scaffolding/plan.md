@@ -136,7 +136,6 @@ apps/lead-service/
 │   │   │   ├── infrastructure/  # Mongoose schemas, repository + cache adapters
 │   │   │   ├── interface/http/  # controllers, DTOs (thin)
 │   │   │   └── leads.module.ts
-│   │   ├── lead-activities/     # skeleton, same layering
 │   │   └── cache/               # skeleton CacheModule exposing a CachePort, Redis adapter
 │   └── shared/                  # constants, small shared services
 └── test/

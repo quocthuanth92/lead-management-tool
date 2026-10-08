@@ -6,6 +6,11 @@
   "engines": {
     "node": ">=24.0.0"
   },
+  "workspaces": [
+    "apps/*",
+    "packages/*",
+    "end-to-end/*"
+  ],
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev --parallel",
