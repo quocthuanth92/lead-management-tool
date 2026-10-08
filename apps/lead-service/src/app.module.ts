@@ -7,7 +7,6 @@ import { RedisModule } from './core/redis/redis.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { CacheModule } from './modules/cache/cache.module';
 import { HealthModule } from './modules/health/health.module';
-import { LeadActivitiesModule } from './modules/lead-activities/lead-activities.module';
 import { LeadsModule } from './modules/leads/leads.module';
 import { UsersModule } from './modules/users/users.module';
 
@@ -26,7 +25,6 @@ import { UsersModule } from './modules/users/users.module';
     AuthModule,
     UsersModule,
     LeadsModule,
-    LeadActivitiesModule,
     CacheModule
   ]
 })
