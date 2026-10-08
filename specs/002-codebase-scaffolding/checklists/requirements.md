@@ -35,3 +35,11 @@
   Cucumber, Docker, GitHub Actions, pnpm/turbo) appear only as fixed constraints in the Input and
   Assumptions sections; requirements and success criteria are phrased in terms of outcomes.
 - Business requirements are explicitly excluded (FR-016) and deferred to later feature specs.
+- Implementation validation snapshot (2026-10-08):
+  - `pnpm format:check` PASS
+  - `pnpm lint` PASS
+  - `pnpm typecheck` PASS
+  - `pnpm build` PASS
+  - `pnpm test` PASS
+  - `pnpm test:integration` PASS
+  - `pnpm test:e2e` requires Docker daemon + composed stack + Playwright browser install

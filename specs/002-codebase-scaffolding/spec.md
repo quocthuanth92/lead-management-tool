@@ -8,7 +8,7 @@
 
 **Input**: User description: "Based on the High-Level Diagram, set up the codebase for this repository with the following requirements: Create all necessary folder structures. Refer to the NestJS Best Practices Guide and, based on the defined folder structure, build the complete codebase for `apps/lead-service`, including all dependencies. Refer to the Next.js framework and, based on the defined folder structure, build the complete codebase for `apps/lead-web`. Build the end-to-end (E2E) testing codebase using the Cucumber framework. Install all necessary packages, libraries, and modules. Set up Dockerfiles, `docker-compose`, and GitHub CI/CD workflows. Important: Only build the codebase structure and boilerplate; do not analyze user business requirements yet."
 
-## User Scenarios & Testing *(mandatory)*
+## User Scenarios & Testing _(mandatory)_
 
 ### User Story 1 - Monorepo workspace and shared tooling (Priority: P1)
 
@@ -168,7 +168,7 @@ pull request and verify the pipeline runs and reports status.
 - What happens when no business behavior is yet specified? Placeholder routes and modules exist but
   return only structural or health responses; no business rules are implemented.
 
-## Requirements *(mandatory)*
+## Requirements _(mandatory)_
 
 ### Functional Requirements
 
@@ -209,7 +209,7 @@ pull request and verify the pipeline runs and reports status.
   assignment rules) MAY be implemented in this feature; only structure, wiring, and placeholders.
 - **FR-017**: A root-level README MUST document how to install, run, test, and containerize the system.
 
-### Key Entities *(include if feature involves data)*
+### Key Entities _(include if feature involves data)_
 
 - **Workspace**: The repository as a whole, grouping applications, shared packages, specs, and docs.
 - **Component**: A deployable unit (web frontend, lead service, background service) with its own build,
@@ -220,7 +220,7 @@ pull request and verify the pipeline runs and reports status.
 - **Local Environment**: The composed set of components and backing services started together on a
   developer machine.
 
-## Success Criteria *(mandatory)*
+## Success Criteria _(mandatory)_
 
 ### Measurable Outcomes
 

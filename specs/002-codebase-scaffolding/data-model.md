@@ -5,33 +5,33 @@ describes the structural entities from the spec and the configuration schemas th
 
 ## 1. Workspace
 
-| Field | Description |
-|---|---|
-| `packageManager` | pnpm version pinned in root `package.json` |
-| `members` | `apps/*`, `packages/*`, `end-to-end` |
-| `tasks` | Turbo tasks: `build`, `dev`, `lint`, `typecheck`, `format:check`, `test`, `test:integration`, `test:e2e` |
+| Field            | Description                                                                                              |
+| ---------------- | -------------------------------------------------------------------------------------------------------- |
+| `packageManager` | pnpm version pinned in root `package.json`                                                               |
+| `members`        | `apps/*`, `packages/*`, `end-to-end`                                                                     |
+| `tasks`          | Turbo tasks: `build`, `dev`, `lint`, `typecheck`, `format:check`, `test`, `test:integration`, `test:e2e` |
 
 **Rules**: every member extends `tsconfig.base.json`; every member defines the tasks that apply to it;
 adding a task requires updating `turbo.json` and CI together.
 
 ## 2. Component
 
-| Component | Type | Port | Health endpoint | Depends on |
-|---|---|---|---|---|
-| `lead-web` | Next.js app | 3000 | `GET /api/health` | `lead-service` |
-| `lead-service` | NestJS HTTP | 3001 | `GET /api/v1/health` | MongoDB, Redis |
-| `lead-background-service` | NestJS hybrid (Kafka + HTTP) | 3002 | `GET /health` | Kafka, MongoDB |
+| Component                 | Type                         | Port | Health endpoint      | Depends on     |
+| ------------------------- | ---------------------------- | ---- | -------------------- | -------------- |
+| `lead-web`                | Next.js app                  | 3000 | `GET /api/health`    | `lead-service` |
+| `lead-service`            | NestJS HTTP                  | 3001 | `GET /api/v1/health` | MongoDB, Redis |
+| `lead-background-service` | NestJS hybrid (Kafka + HTTP) | 3002 | `GET /health`        | Kafka, MongoDB |
 
 **Relationships**: `lead-web → lead-service` (server-side only); `lead-background-service` writes to
 MongoDB directly (per architecture doc), never through `lead-service`.
 
 ## 3. Shared Package — `@lead/shared-contracts`
 
-| Export | Shape |
-|---|---|
-| `API_PREFIX` | `'api/v1'` |
-| `ErrorResponse` | `{ statusCode: number; message: string \| string[]; error: string }` |
-| `HealthStatus` | `'up' \| 'down'` |
+| Export           | Shape                                                                             |
+| ---------------- | --------------------------------------------------------------------------------- |
+| `API_PREFIX`     | `'api/v1'`                                                                        |
+| `ErrorResponse`  | `{ statusCode: number; message: string \| string[]; error: string }`              |
+| `HealthStatus`   | `'up' \| 'down'`                                                                  |
 | `HealthResponse` | `{ status: 'ok' \| 'degraded' \| 'down'; db: HealthStatus; redis: HealthStatus }` |
 
 **Rules**: browser-safe, no Node/Nest imports, no business types.
@@ -47,15 +47,15 @@ startup with an error naming the key.
 
 Services, health checks, and start ordering in
 [contracts/compose-services.md](./contracts/compose-services.md). State transitions:
-`starting → healthy` per service; the environment is *ready* when all services are `healthy`.
+`starting → healthy` per service; the environment is _ready_ when all services are `healthy`.
 
 ## 6. Test Assets
 
-| Asset | Location | Purpose |
-|---|---|---|
-| Unit samples | `*.spec.ts` / `*.test.tsx` beside source | Prove runners work (FR-015) |
-| Integration | `apps/lead-service/test/integration` | Health endpoint, validation error shape, 404 shape against real MongoDB/Redis |
-| Smoke features | `end-to-end/features/smoke` | Login page renders; `/api/v1/health` reports up |
+| Asset          | Location                                 | Purpose                                                                       |
+| -------------- | ---------------------------------------- | ----------------------------------------------------------------------------- |
+| Unit samples   | `*.spec.ts` / `*.test.tsx` beside source | Prove runners work (FR-015)                                                   |
+| Integration    | `apps/lead-service/test/integration`     | Health endpoint, validation error shape, 404 shape against real MongoDB/Redis |
+| Smoke features | `end-to-end/features/smoke`              | Login page renders; `/api/v1/health` reports up                               |
 
 ## 7. Pipeline
 

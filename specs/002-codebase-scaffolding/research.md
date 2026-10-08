@@ -4,22 +4,22 @@ All Technical Context unknowns are resolved below. Package versions were looked 
 on 2026-10-08; the implementation MUST pin exact versions via the lockfile and re-verify peer-dependency
 compatibility at install time.
 
-| Package | Latest at planning time | Plan |
-|---|---|---|
-| pnpm | 12.x | Pinned via `packageManager`, activated with Corepack |
-| turbo | 2.11 | Root devDependency |
-| @nestjs/core, microservices, terminus | 12.x | Use latest stable major |
-| @nestjs/mongoose / config / jwt | 12.x | Use latest stable major |
-| @nestjs/throttler | 6.x | Use latest stable major |
-| mongoose | 9.x | Peer-compatible with `@nestjs/mongoose` |
-| ioredis | 6.x | Redis client mandated by the NestJS guide |
-| kafkajs | 2.2 | Transport used by `@nestjs/microservices` Kafka |
-| next / react | 16.x / 19.x | App Router |
-| @cucumber/cucumber | 13.x | E2E runner |
-| @playwright/test | 1.64 | Browser + API automation |
-| jest | 30.x | Unit tests (all apps) |
-| testcontainers | 12.x | Real MongoDB/Redis in integration tests |
-| typescript | 7.x (latest) | See R-02 |
+| Package                               | Latest at planning time | Plan                                                 |
+| ------------------------------------- | ----------------------- | ---------------------------------------------------- |
+| pnpm                                  | 12.x                    | Pinned via `packageManager`, activated with Corepack |
+| turbo                                 | 2.11                    | Root devDependency                                   |
+| @nestjs/core, microservices, terminus | 12.x                    | Use latest stable major                              |
+| @nestjs/mongoose / config / jwt       | 12.x                    | Use latest stable major                              |
+| @nestjs/throttler                     | 6.x                     | Use latest stable major                              |
+| mongoose                              | 9.x                     | Peer-compatible with `@nestjs/mongoose`              |
+| ioredis                               | 6.x                     | Redis client mandated by the NestJS guide            |
+| kafkajs                               | 2.2                     | Transport used by `@nestjs/microservices` Kafka      |
+| next / react                          | 16.x / 19.x             | App Router                                           |
+| @cucumber/cucumber                    | 13.x                    | E2E runner                                           |
+| @playwright/test                      | 1.64                    | Browser + API automation                             |
+| jest                                  | 30.x                    | Unit tests (all apps)                                |
+| testcontainers                        | 12.x                    | Real MongoDB/Redis in integration tests              |
+| typescript                            | 7.x (latest)            | See R-02                                             |
 
 ## R-01 Monorepo tooling
 
@@ -49,7 +49,7 @@ compatibility at install time.
 - **Decision**: Follow the guide's `common/ core/ modules/ shared/` shape and file naming
   (`*.controller.ts`, `*.module.ts`, `*.dto.ts`, `*.entity.ts`, `*.filter.ts`, …) and add hexagonal
   layers inside each module (`domain/ application/ infrastructure/ interface/`). Use `@nestjs/mongoose`
-  + Mongoose instead of TypeORM (the guide's TypeORM section does not apply to MongoDB).
+  - Mongoose instead of TypeORM (the guide's TypeORM section does not apply to MongoDB).
 - **Rationale**: Satisfies the guide, Constitution I, and the MongoDB source-of-truth decision.
 - **Alternatives**: Flat module files (violates hexagonal rule); Prisma/TypeORM (poor MongoDB fit).
 
@@ -136,7 +136,7 @@ compatibility at install time.
 
 - **Decision**: Docker is already installed (Docker 29.x) — verify with `docker --version` and
   `docker compose version`. Multi-stage Dockerfile per app using `turbo prune <app> --docker`, `pnpm
-  install --frozen-lockfile`, non-root runtime user, `node:24-alpine` base (slim fallback if native
+install --frozen-lockfile`, non-root runtime user, `node:24-alpine` base (slim fallback if native
   deps require it), Next.js `output: 'standalone'`. Compose services: `mongo` (single-node replica set
   via `docker/mongo/init-replica.sh`), `redis`, `kafka` (Apache Kafka KRaft single node),
   `lead-service`, `lead-background-service`, `lead-web`, and an `e2e` profile service. Every service has

@@ -1,0 +1,13 @@
+:root {
+  font-family: Inter, Arial, sans-serif;
+  color: #111827;
+}
+
+body {
+  margin: 0;
+  background: #f9fafb;
+}
+
+main {
+  padding: 24px;
+}

@@ -2,15 +2,15 @@
 
 Start the whole system: `docker compose up --build --wait` (exit 0 only when all services are healthy).
 
-| Service | Image / build | Host port | Healthcheck | Depends on (healthy) |
-|---|---|---|---|---|
-| `mongo` | `mongo` (replica set `rs0`, single node, init via `docker/mongo/init-replica.sh`) | 27017 | `rs.status()` ok | none |
-| `redis` | `redis:alpine` | 6379 | `redis-cli ping` | none |
-| `kafka` | `apache/kafka` (KRaft, single node) | 9092 | topics list succeeds | none |
-| `lead-service` | build `apps/lead-service/Dockerfile` | 3001 | `GET /api/v1/health` | `mongo`, `redis` |
-| `lead-background-service` | build `apps/lead-background-service/Dockerfile` | 3002 | `GET /health` | `mongo`, `kafka` |
-| `lead-web` | build `apps/lead-web/Dockerfile` | 3000 | `GET /api/health` | `lead-service` |
-| `e2e` (profile `e2e`) | build `end-to-end` | none | none | `lead-web`, `lead-service` |
+| Service                   | Image / build                                                                     | Host port | Healthcheck          | Depends on (healthy)       |
+| ------------------------- | --------------------------------------------------------------------------------- | --------- | -------------------- | -------------------------- |
+| `mongo`                   | `mongo` (replica set `rs0`, single node, init via `docker/mongo/init-replica.sh`) | 27017     | `rs.status()` ok     | none                       |
+| `redis`                   | `redis:alpine`                                                                    | 6379      | `redis-cli ping`     | none                       |
+| `kafka`                   | `apache/kafka` (KRaft, single node)                                               | 9092      | topics list succeeds | none                       |
+| `lead-service`            | build `apps/lead-service/Dockerfile`                                              | 3001      | `GET /api/v1/health` | `mongo`, `redis`           |
+| `lead-background-service` | build `apps/lead-background-service/Dockerfile`                                   | 3002      | `GET /health`        | `mongo`, `kafka`           |
+| `lead-web`                | build `apps/lead-web/Dockerfile`                                                  | 3000      | `GET /api/health`    | `lead-service`             |
+| `e2e` (profile `e2e`)     | build `end-to-end`                                                                | none      | none                 | `lead-web`, `lead-service` |
 
 ## Rules
 

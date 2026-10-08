@@ -1,0 +1,37 @@
+{
+  "name": "@lead/lead-background-service",
+  "version": "0.1.0",
+  "private": true,
+  "type": "commonjs",
+  "scripts": {
+    "build": "nest build",
+    "dev": "nest start --watch",
+    "start": "node dist/main.js",
+    "lint": "eslint \"src/**/*.ts\"",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "jest --runInBand --config jest.config.cjs"
+  },
+  "dependencies": {
+    "@lead/shared-contracts": "workspace:*",
+    "@nestjs/common": "11.2.7",
+    "@nestjs/config": "4.0.2",
+    "@nestjs/core": "11.2.7",
+    "@nestjs/microservices": "11.2.7",
+    "@nestjs/platform-express": "11.2.7",
+    "kafkajs": "2.2.4",
+    "mongoose": "8.19.1",
+    "reflect-metadata": "0.2.2",
+    "rxjs": "7.8.2",
+    "zod": "3.25.76"
+  },
+  "devDependencies": {
+    "@nestjs/cli": "11.0.10",
+    "@nestjs/schematics": "11.0.7",
+    "@nestjs/testing": "11.2.7",
+    "@types/jest": "30.0.0",
+    "@types/node": "24.7.2",
+    "jest": "30.2.0",
+    "ts-jest": "29.4.5",
+    "typescript": "5.9.3"
+  }
+}

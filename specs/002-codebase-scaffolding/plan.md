@@ -47,16 +47,16 @@ browser; no business logic in controllers/route handlers/UI; format, lint, and t
 
 ## Constitution Check
 
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+_GATE: Must pass before Phase 0 research. Re-check after Phase 1 design._
 
-| Principle | Gate | Pre-research | Post-design |
-|---|---|---|---|
-| I. Clean & Hexagonal Architecture | Modules split into domain / application / infrastructure / interface; ports live in domain/application, adapters in infrastructure; FE/BE separated; architecture doc is authoritative | PASS | PASS — research R-04, R-05 |
-| II. Verify Before Modification | Existing files (`apps/*`, `end-to-end/`, `docker-compose.yml`, `.gitignore`) inspected before editing; empty `apps/*` and 0-byte `docker-compose.yml` confirmed | PASS | PASS |
-| III. Code Quality Gates | Format, lint, type-check tasks defined at root and enforced in CI | PASS | PASS — `ci.yml` quality job |
-| IV. Skills-First Implementation | `lead-service.instructions.md` and `lead-web.instructions.md` read; MongoDB and Next.js skills to be loaded when each layer is implemented | PASS | PASS |
-| V. Testing Policy | Sample unit tests per app; integration test for the REST health endpoint (REST + persistence wiring) | PASS | PASS — data-model §6, quickstart |
-| Constraints | `pnpm`/`turbo`; `turbo.json` + CI updated together; `/api/v1`; no hard-coded config; spec exists | PASS | PASS |
+| Principle                         | Gate                                                                                                                                                                                   | Pre-research | Post-design                      |
+| --------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------ | -------------------------------- |
+| I. Clean & Hexagonal Architecture | Modules split into domain / application / infrastructure / interface; ports live in domain/application, adapters in infrastructure; FE/BE separated; architecture doc is authoritative | PASS         | PASS — research R-04, R-05       |
+| II. Verify Before Modification    | Existing files (`apps/*`, `end-to-end/`, `docker-compose.yml`, `.gitignore`) inspected before editing; empty `apps/*` and 0-byte `docker-compose.yml` confirmed                        | PASS         | PASS                             |
+| III. Code Quality Gates           | Format, lint, type-check tasks defined at root and enforced in CI                                                                                                                      | PASS         | PASS — `ci.yml` quality job      |
+| IV. Skills-First Implementation   | `lead-service.instructions.md` and `lead-web.instructions.md` read; MongoDB and Next.js skills to be loaded when each layer is implemented                                             | PASS         | PASS                             |
+| V. Testing Policy                 | Sample unit tests per app; integration test for the REST health endpoint (REST + persistence wiring)                                                                                   | PASS         | PASS — data-model §6, quickstart |
+| Constraints                       | `pnpm`/`turbo`; `turbo.json` + CI updated together; `/api/v1`; no hard-coded config; spec exists                                                                                       | PASS         | PASS                             |
 
 **Known tension (resolved, no violation):**
 
@@ -114,8 +114,8 @@ packages/
         └── index.ts
 
 apps/lead-service/
-├── Dockerfile  nest-cli.json  tsconfig*.json  jest.config.ts  package.json  
-├── .env.example                 
+├── Dockerfile  nest-cli.json  tsconfig*.json  jest.config.ts  package.json
+├── .env.example
 ├── tsconfig.json
 ├── src/
 │   ├── main.ts                  # prefix, global ValidationPipe, exception filter, helmet, shutdown hooks
@@ -145,7 +145,7 @@ apps/lead-service/
 
 apps/lead-background-service/
 ├── Dockerfile  nest-cli.json  tsconfig*.json  jest.config.ts  package.json
-├── .env.example                 
+├── .env.example
 ├── tsconfig.json
 └── src/
     ├── main.ts                  # hybrid app: Kafka microservice transport + HTTP health port
@@ -159,7 +159,7 @@ apps/lead-background-service/
 
 apps/lead-web/
 ├── Dockerfile  next.config.ts  tsconfig.json  jest.config.ts  package.json
-├── .env.example                 
+├── .env.example
 ├── tsconfig.json
 ├── public/
 └── src/
@@ -178,8 +178,8 @@ apps/lead-web/
 end-to-end/                      # @lead/e2e — Cucumber (Gherkin) + Playwright
 ├── package.json  tsconfig.json  cucumber.mjs  .env.example
 ├── features/smoke/              # web.feature, service-health.feature
-├── step-definitions/            # web.steps.ts, service.steps.ts
-├── support/                     # world.ts, hooks.ts, config.ts, api-client.ts
+├── step-definitions/            # web.steps.js, service.steps.js
+├── support/                     # world.js, hooks.js, config.js, api-client.js
 └── reports/                     # git-ignored: cucumber-report.html/json, traces
 
 docker-compose.yml
@@ -195,14 +195,14 @@ use-cases, which depend on domain ports implemented by infrastructure adapters. 
 
 Maps to the six requested steps; each step ends with a verifiable checkpoint.
 
-| # | Step | Outputs | Checkpoint |
-|---|------|---------|-----------|
-| 1 | Set up the monorepo | root manifests, `turbo.json`, base TS/ESLint/Prettier configs, `.nvmrc`, `.env.example`, `packages/shared-contracts`, README skeleton | `pnpm install`; `pnpm build`, `pnpm lint`, `pnpm typecheck`, `pnpm format:check` green |
-| 2 | Create the backend service | `apps/lead-service` (modules, config, DB/Redis, health, error filter, auth skeleton) and `apps/lead-background-service` | `pnpm --filter lead-service test` and `test:integration`; `/api/v1/health` responds |
-| 3 | Create the frontend | `apps/lead-web` route shells, layout, providers, server-only client, BFF health route | `pnpm --filter lead-web test`; routes render; no token in browser bundle |
-| 4 | E2E with Cucumber (Gherkin) + Playwright | `end-to-end/` project with smoke features for web and service | `pnpm test:e2e` passes against compose environment; report generated |
-| 5 | Docker | `docker --version` verified; Dockerfiles per app; `docker-compose.yml` with mongo, redis, kafka, three apps (+ `e2e` profile) | `docker compose up --build --wait` → all healthy in < 3 min |
-| 6 | GitHub Actions CI/CD | `ci.yml` and `docker.yml`; `turbo.json` kept in sync | workflows lint-valid; PR run executes every gate |
+| #   | Step                                     | Outputs                                                                                                                               | Checkpoint                                                                             |
+| --- | ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| 1   | Set up the monorepo                      | root manifests, `turbo.json`, base TS/ESLint/Prettier configs, `.nvmrc`, `.env.example`, `packages/shared-contracts`, README skeleton | `pnpm install`; `pnpm build`, `pnpm lint`, `pnpm typecheck`, `pnpm format:check` green |
+| 2   | Create the backend service               | `apps/lead-service` (modules, config, DB/Redis, health, error filter, auth skeleton) and `apps/lead-background-service`               | `pnpm --filter lead-service test` and `test:integration`; `/api/v1/health` responds    |
+| 3   | Create the frontend                      | `apps/lead-web` route shells, layout, providers, server-only client, BFF health route                                                 | `pnpm --filter lead-web test`; routes render; no token in browser bundle               |
+| 4   | E2E with Cucumber (Gherkin) + Playwright | `end-to-end/` project with smoke features for web and service                                                                         | `pnpm test:e2e` passes against compose environment; report generated                   |
+| 5   | Docker                                   | `docker --version` verified; Dockerfiles per app; `docker-compose.yml` with mongo, redis, kafka, three apps (+ `e2e` profile)         | `docker compose up --build --wait` → all healthy in < 3 min                            |
+| 6   | GitHub Actions CI/CD                     | `ci.yml` and `docker.yml`; `turbo.json` kept in sync                                                                                  | workflows lint-valid; PR run executes every gate                                       |
 
 Prerequisite notes (verified in this environment): Node 24 and Docker 29 are installed; `pnpm` is not on
 PATH — enable via Corepack (`corepack enable`; the `packageManager` field pins the version).
@@ -211,8 +211,8 @@ PATH — enable via Corepack (`corepack enable`; the `packageManager` field pins
 
 No constitution violations. Items worth justifying:
 
-| Item | Why Needed | Simpler Alternative Rejected Because |
-|------|------------|--------------------------------------|
-| Separate `lead-background-service` app | Present in the High-Level Diagram and repo instructions | Folding into lead-service would break the documented component boundary |
-| `packages/shared-contracts` | Constitution requires typed shared contracts; FE and BE both need the error shape | Duplicating types risks drift between browser-facing and API code |
-| Testcontainers integration tests | Constitution V requires integration tests for REST/persistence changes | Mocks would not verify real DB/Redis wiring |
+| Item                                   | Why Needed                                                                        | Simpler Alternative Rejected Because                                    |
+| -------------------------------------- | --------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| Separate `lead-background-service` app | Present in the High-Level Diagram and repo instructions                           | Folding into lead-service would break the documented component boundary |
+| `packages/shared-contracts`            | Constitution requires typed shared contracts; FE and BE both need the error shape | Duplicating types risks drift between browser-facing and API code       |
+| Testcontainers integration tests       | Constitution V requires integration tests for REST/persistence changes            | Mocks would not verify real DB/Redis wiring                             |

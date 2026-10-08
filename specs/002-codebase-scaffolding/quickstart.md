@@ -8,6 +8,7 @@ Details: [plan.md](./plan.md), [contracts/](./contracts/), [data-model.md](./dat
 - Node.js 24 (`node -v`)
 - Docker with Compose (`docker --version`, `docker compose version`)
 - pnpm via Corepack: `corepack enable` (version pinned by `packageManager`)
+- Playwright Chromium browser: `pnpm --filter @lead/e2e exec playwright install chromium`
 
 ## 1. Workspace (Story 1)
 

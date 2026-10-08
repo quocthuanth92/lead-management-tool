@@ -1,0 +1,23 @@
+{
+  "name": "@lead/e2e",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "echo \"No build step for e2e\"",
+    "lint": "eslint \"**/*.{ts,js}\"",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "echo \"Use pnpm test:e2e for end-to-end smoke tests\"",
+    "test:e2e": "cucumber-js \"features/**/*.feature\" --import \"step-definitions/**/*.js\" --import \"support/**/*.js\" --format progress --format html:reports/cucumber-report.html --format json:reports/cucumber-report.json"
+  },
+  "dependencies": {
+    "@cucumber/cucumber": "12.2.0",
+    "@playwright/test": "1.56.0",
+    "dotenv": "17.2.3"
+  },
+  "devDependencies": {
+    "@types/node": "24.7.2",
+    "tsx": "4.20.6",
+    "typescript": "5.9.3"
+  }
+}

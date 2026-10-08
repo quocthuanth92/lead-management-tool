@@ -1,0 +1,34 @@
+{
+  "name": "@lead/lead-web",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "next build",
+    "dev": "next dev",
+    "start": "next start",
+    "lint": "eslint \"src/**/*.{ts,tsx}\"",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "jest --runInBand --config jest.config.cjs"
+  },
+  "dependencies": {
+    "@lead/shared-contracts": "workspace:*",
+    "@tanstack/react-query": "5.90.5",
+    "next": "16.0.0",
+    "react": "19.2.0",
+    "react-dom": "19.2.0",
+    "server-only": "0.0.1",
+    "zod": "3.25.76"
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "6.9.1",
+    "@testing-library/react": "16.3.0",
+    "@types/jest": "30.0.0",
+    "@types/node": "24.7.2",
+    "@types/react": "19.2.2",
+    "@types/react-dom": "19.2.2",
+    "jest": "30.2.0",
+    "jest-environment-jsdom": "30.2.0",
+    "ts-jest": "29.4.5",
+    "typescript": "5.9.3"
+  }
+}
