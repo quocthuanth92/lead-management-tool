@@ -11,9 +11,8 @@ COPY apps/lead-web/package.json apps/lead-web/package.json
 RUN pnpm install --frozen-lockfile=false --filter @lead/lead-web...
 
 FROM base AS build
-WORKDIR /app
+COPY --from=deps /app ./
 COPY apps/lead-web ./apps/lead-web
-RUN pnpm install --frozen-lockfile --prod=false --ignore-scripts
 RUN pnpm --filter @lead/lead-web... run build
 
 FROM base AS runtime
@@ -24,10 +23,8 @@ ENV NODE_OPTIONS=--max-old-space-size=512
 RUN addgroup -S nextjs && adduser -S nodeuser -G nextjs
 COPY --from=build /app/apps/lead-web/.next/standalone ./
 COPY --from=build /app/apps/lead-web/.next/standalone/node_modules ./node_modules
-COPY --from=build /app/apps/lead-web/.next ./.next
-COPY --from=build /app/apps/lead-web/public ./public
-COPY --from=build /app/apps/lead-web/.env.example ./.env
-USER nextjs
+COPY --from=build /app/apps/lead-web/.next/static ./apps/lead-web/.next/static
+COPY --from=build /app/apps/lead-web/public ./apps/lead-web/public
+USER nodeuser
 EXPOSE 3000
-CMD ["node", "server.js"]
-
+CMD ["node", "apps/lead-web/server.js"]

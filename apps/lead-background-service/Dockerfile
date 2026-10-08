@@ -11,11 +11,10 @@ COPY apps/lead-background-service/package.json apps/lead-background-service/pack
 RUN pnpm install --frozen-lockfile=false
 
 FROM base AS build
-WORKDIR /app
+COPY --from=deps /app ./
 COPY apps/lead-background-service ./apps/lead-background-service
-RUN pnpm install --frozen-lockfile --prod=false --ignore-scripts
 RUN pnpm --filter @lead/lead-background-service... run build
-RUN pnpm deploy --filter @lead/lead-background-service... --prod --legacy /prod/lead-background-service
+RUN pnpm deploy --filter @lead/lead-background-service --prod --legacy /prod/lead-background-service
 
 
 FROM base AS runtime
@@ -25,8 +24,6 @@ ENV UV_THREADPOOL_SIZE=4
 ENV NODE_OPTIONS=--max-old-space-size=512
 RUN addgroup -S nodejs && adduser -S nodeuser -G nodejs
 COPY --from=build /prod/lead-background-service ./
-COPY --from=build /app/apps/lead-background-service/.env.example ./.env
 USER nodeuser
-EXPOSE 9001
-CMD ["node", "dist/main.js"]
-
+EXPOSE 3002
+CMD ["node", "dist/src/main.js"]
