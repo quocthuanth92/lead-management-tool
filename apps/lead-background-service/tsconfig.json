@@ -1,11 +1,27 @@
 {
-  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "rootDir": ".",
-    "outDir": "dist",
-    "types": ["node", "jest"],
+    "module": "commonjs",
+    "declaration": true,
+    "removeComments": true,
+    "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
-    "emitDecoratorMetadata": true
+    "allowSyntheticDefaultImports": true,
+    "target": "ES2021",
+    "esModuleInterop": true,
+    "sourceMap": true,
+    "outDir": "./dist",
+    "baseUrl": "./",
+    "paths": {
+      "@/*": ["./src/*"]
+    },
+    "incremental": true,
+    "skipLibCheck": true,
+    "strictNullChecks": false,
+    "noImplicitAny": false,
+    "strictBindCallApply": false,
+    "forceConsistentCasingInFileNames": false,
+    "noFallthroughCasesInSwitch": false,
+    "types": ["node", "jest"]
   },
-  "include": ["src/**/*.ts"]
+  "include": ["src/**/*.ts", "src/**/*.d.ts", "test/**/*.ts", "test/**/*.d.ts"]
 }
