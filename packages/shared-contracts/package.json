@@ -11,6 +11,9 @@
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "jest --runInBand --config jest.config.cjs"
   },
+  "dependencies": {
+    "zod": "3.25.76"
+  },
   "devDependencies": {
     "@types/jest": "30.0.0",
     "jest": "30.2.0",

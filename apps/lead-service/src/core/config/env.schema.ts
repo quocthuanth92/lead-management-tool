@@ -1,17 +1,27 @@
 import { z } from 'zod';
 
-const envSchema = z.object({
-  NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
-  PORT: z.coerce.number().int().min(1).max(65535).default(3001),
-  MONGODB_URI: z.string().url(),
-  REDIS_URL: z.string().url(),
-  JWT_SECRET: z.string().min(1),
-  JWT_EXPIRES_IN: z.string().default('1h'),
-  LEAD_SOURCE_API_KEY: z.string().min(1),
-  RATE_LIMIT_TTL: z.coerce.number().int().positive().default(60),
-  RATE_LIMIT_LIMIT: z.coerce.number().int().positive().default(100),
-  CORS_ORIGIN: z.string().default('http://localhost:3000')
-});
+const booleanString = z.enum(['true', 'false']).transform((value) => value === 'true');
+
+const envSchema = z
+  .object({
+    NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
+    PORT: z.coerce.number().int().min(1).max(65535).default(3001),
+    MONGODB_URI: z.string().url(),
+    MONGODB_SYNC_INDEXES: booleanString.optional(),
+    REDIS_URL: z.string().url(),
+    JWT_SECRET: z.string().min(1),
+    JWT_EXPIRES_IN: z.string().default('1h'),
+    LEAD_SOURCE_API_KEY: z.string().min(1),
+    RATE_LIMIT_TTL: z.coerce.number().int().positive().default(60),
+    RATE_LIMIT_LIMIT: z.coerce.number().int().positive().default(100),
+    CORS_ORIGIN: z.string().default('http://localhost:3000'),
+    CACHE_LIST_TTL_SECONDS: z.coerce.number().int().positive().default(60),
+    CACHE_LEAD_TTL_SECONDS: z.coerce.number().int().positive().default(300)
+  })
+  .transform((env) => ({
+    ...env,
+    MONGODB_SYNC_INDEXES: env.MONGODB_SYNC_INDEXES ?? env.NODE_ENV !== 'production'
+  }));
 
 export type EnvConfig = z.infer<typeof envSchema>;
 

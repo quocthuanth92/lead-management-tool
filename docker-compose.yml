@@ -92,9 +92,12 @@ services:
     environment:
       - PORT=3002
       - MONGODB_URI=mongodb://mongo:27017/lead
+      - REDIS_URL=redis://redis:6379
       - KAFKA_BROKERS=kafka:9092
     depends_on:
       mongo:
+        condition: service_healthy
+      redis:
         condition: service_healthy
       kafka:
         condition: service_healthy
