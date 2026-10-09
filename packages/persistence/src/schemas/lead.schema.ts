@@ -9,7 +9,9 @@ import { Schema } from 'mongoose';
 
 import { attachIndexes, LEAD_INDEXES } from '../indexes';
 
-const PHONE_PATTERN = new RegExp(`^\\+?\\d{${LIMITS.PHONE_MIN_DIGITS},${LIMITS.PHONE_MAX_DIGITS}}$`);
+const PHONE_PATTERN = new RegExp(
+  `^\\+?\\d{${LIMITS.PHONE_MIN_DIGITS},${LIMITS.PHONE_MAX_DIGITS}}$`
+);
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export const LeadSchema = new Schema(

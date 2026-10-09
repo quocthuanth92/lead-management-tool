@@ -46,7 +46,12 @@ class FakeStore implements LeadWriterStore {
   }
 }
 
-const input = { fullName: 'Ann Lee', phone: '(555) 123-4567', email: 'Ann@Example.com', message: 'Hi' };
+const input = {
+  fullName: 'Ann Lee',
+  phone: '(555) 123-4567',
+  email: 'Ann@Example.com',
+  message: 'Hi'
+};
 const now = new Date('2026-01-02T03:04:05.000Z');
 const salespeople = [{ id: 'a' }, { id: 'b' }, { id: 'c' }];
 

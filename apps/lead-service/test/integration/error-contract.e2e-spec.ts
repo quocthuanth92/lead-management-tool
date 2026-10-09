@@ -24,7 +24,7 @@ describe('Error contract', () => {
       return;
     }
     await request(running.app.getHttpServer())
-      .post('/api/v1/leads/placeholder')
+      .post('/api/v1/auth/login')
       .send({})
       .expect(400)
       .expect((res) => {

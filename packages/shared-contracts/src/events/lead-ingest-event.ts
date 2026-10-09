@@ -32,9 +32,9 @@ export interface DeadLetterEnvelope {
   sourceOffset: string;
 }
 
-export function parseLeadIngestEvent(raw: unknown):
-  | { success: true; data: LeadIngestEvent }
-  | { success: false; issues: string[] } {
+export function parseLeadIngestEvent(
+  raw: unknown
+): { success: true; data: LeadIngestEvent } | { success: false; issues: string[] } {
   const parsed = leadIngestEventSchema.safeParse(raw);
 
   if (!parsed.success) {

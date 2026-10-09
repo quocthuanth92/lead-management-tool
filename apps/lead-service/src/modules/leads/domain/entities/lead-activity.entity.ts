@@ -1,6 +1,9 @@
 export interface LeadActivity {
   id: string;
   leadId: string;
-  type: string;
+  userId: string;
+  authorName: string;
+  type: 'CALL' | 'EMAIL' | 'SMS' | 'NOTE' | 'OTHER';
   content: string;
+  createdAt: Date;
 }

@@ -1,20 +1,16 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Post, UseGuards } from '@nestjs/common';
 
-import { LeadsService } from '../../application/leads.service';
-import { CreatePlaceholderLeadDto } from './dto/create-placeholder-lead.dto';
+import { ApiKeyGuard } from '../../../../common/guards/api-key.guard';
+import { CreateLeadService } from '../../application/create-lead.service';
+import { CreateLeadDto } from './dto/create-lead.dto';
 
 @Controller('leads')
 export class LeadsController {
-  constructor(private readonly leadsService: LeadsService) {}
+  constructor(private readonly createLeadService: CreateLeadService) {}
 
-  @Post('placeholder')
-  async createPlaceholder(@Body() body: CreatePlaceholderLeadDto): Promise<{ id: string }> {
-    const created = await this.leadsService.createPlaceholderLead({
-      customerName: body.customerName,
-      phone: body.phone,
-      email: body.email,
-      source: body.source
-    });
-    return { id: created.id };
+  @Post()
+  @UseGuards(ApiKeyGuard)
+  create(@Body() body: CreateLeadDto): Promise<{ id: string }> {
+    return this.createLeadService.execute(body);
   }
 }

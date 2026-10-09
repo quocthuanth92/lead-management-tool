@@ -10,7 +10,10 @@ const envSchema = z
     MONGODB_SYNC_INDEXES: booleanString.optional(),
     REDIS_URL: z.string().url(),
     JWT_SECRET: z.string().min(1),
-    JWT_EXPIRES_IN: z.string().default('1h'),
+    JWT_EXPIRES_IN: z
+      .string()
+      .regex(/^\d+(s|m|h|d)?$/)
+      .default('1h'),
     LEAD_SOURCE_API_KEY: z.string().min(1),
     RATE_LIMIT_TTL: z.coerce.number().int().positive().default(60),
     RATE_LIMIT_LIMIT: z.coerce.number().int().positive().default(100),

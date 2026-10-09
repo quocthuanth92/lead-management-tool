@@ -71,9 +71,9 @@ describe('persistence schemas (integration)', () => {
     await Lead.create(buildLead());
     await Lead.create(buildLead());
     await Lead.create(buildLead({ externalEventId: 'evt-2' }));
-    expect(await Lead.countDocuments({ externalEventId: { $exists: false } })).toBeGreaterThanOrEqual(
-      2
-    );
+    expect(
+      await Lead.countDocuments({ externalEventId: { $exists: false } })
+    ).toBeGreaterThanOrEqual(2);
   });
 
   it('enforces unique user email, stored lower-case', async () => {
@@ -172,7 +172,9 @@ describe('persistence schemas (integration)', () => {
   it('hands out 50 distinct assignment sequence values under concurrency', async () => {
     const store = new MongoLeadWriterStore(context.models);
 
-    const values = await Promise.all(Array.from({ length: 50 }, () => store.nextAssignmentSequence()));
+    const values = await Promise.all(
+      Array.from({ length: 50 }, () => store.nextAssignmentSequence())
+    );
 
     expect(new Set(values).size).toBe(50);
     expect([...values].sort((a, b) => a - b)).toEqual(Array.from({ length: 50 }, (_, i) => i + 1));

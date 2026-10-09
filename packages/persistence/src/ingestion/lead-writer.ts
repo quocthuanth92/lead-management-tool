@@ -21,7 +21,9 @@ export interface LeadWriteContext {
   externalEventId?: string;
 }
 
-export type LeadWriteResult = { duplicate: true } | { duplicate: false; id: string; userId?: string };
+export type LeadWriteResult =
+  | { duplicate: true }
+  | { duplicate: false; id: string; userId?: string };
 
 export type AssignHeldResult = { assigned: false } | { assigned: true; userId: string };
 

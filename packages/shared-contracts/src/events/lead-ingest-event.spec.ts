@@ -69,7 +69,9 @@ describe('parseLeadIngestEvent', () => {
     if (!result.success) {
       expect(result.issues.join(' ')).not.toContain('secret@example.com');
       expect(result.issues.join(' ')).not.toContain('not-a-uuid');
-      expect(result.issues.join(' ')).toMatch(/schemaVersion|eventId|occurredAt|lead\.phone|lead\.message|lead\.fullName/);
+      expect(result.issues.join(' ')).toMatch(
+        /schemaVersion|eventId|occurredAt|lead\.phone|lead\.message|lead\.fullName/
+      );
     }
   });
 

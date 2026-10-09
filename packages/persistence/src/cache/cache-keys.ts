@@ -16,7 +16,9 @@ function canonicalize(value: unknown): unknown {
 }
 
 export function leadListKey(userId: string, version: number | string, query: unknown): string {
-  const digest = createHash('sha1').update(JSON.stringify(canonicalize(query))).digest('hex');
+  const digest = createHash('sha1')
+    .update(JSON.stringify(canonicalize(query)))
+    .digest('hex');
   return `leads:${userId}:${version}:${digest}`;
 }
 

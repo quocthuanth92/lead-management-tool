@@ -22,3 +22,8 @@ Then('the lead service health response should include {string}', async function 
   const json = (await response.json()) as Record<string, unknown>;
   assert.ok(field in json);
 });
+
+Then('I should receive a 200 OK response', async function () {
+  assert.ok(response);
+  assert.equal(response.status(), 200);
+});
