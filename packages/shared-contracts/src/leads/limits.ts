@@ -16,6 +16,7 @@ export const PAGINATION = {
   ACTIVITIES_IN_DETAILS: 50
 } as const;
 
+export const MAX_LIMIT = PAGINATION.MAX_LIMIT;
 export const DEFAULT_RANGE_MONTHS = 6;
 
 export const KAFKA_TOPICS = {

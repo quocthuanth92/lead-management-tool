@@ -17,13 +17,15 @@
     },
     "test": {
       "dependsOn": ["^build", "^test"],
-      "outputs": ["coverage/**"]
+      "outputs": ["test-results/**"]
     },
     "test:integration": {
-      "dependsOn": ["build"]
+      "dependsOn": ["build"],
+      "outputs": ["test-results/**"]
     },
     "test:e2e": {
-      "dependsOn": ["build"]
+      "dependsOn": ["build"],
+      "outputs": ["test-results/**"]
     }
   }
 }
