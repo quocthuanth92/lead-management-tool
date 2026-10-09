@@ -1,0 +1,12 @@
+node_modules/
+**/node_modules/
+dist/
+build/
+.next/
+coverage/
+.git/
+.turbo/
+*.log*
+.env*
+Dockerfile*
+.dockerignore

@@ -1,0 +1,44 @@
+openapi: 3.0.3
+info:
+  title: Lead Service Health API
+  version: 1.0.0
+  description: Only endpoint delivered by the scaffolding feature. Business endpoints are out of scope.
+servers:
+  - url: http://localhost:3001
+paths:
+  /api/v1/health:
+    get:
+      summary: Service health
+      operationId: getHealth
+      responses:
+        '200':
+          description: Service is running; dependency statuses reported individually (Redis down yields status degraded).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+              example:
+                status: ok
+                db: up
+                redis: up
+        '503':
+          description: The database is down.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+components:
+  schemas:
+    HealthResponse:
+      type: object
+      required: [status, db, redis]
+      properties:
+        status:
+          type: string
+          enum: [ok, degraded, down]
+        db:
+          type: string
+          enum: [up, down]
+        redis:
+          type: string
+          enum: [up, down]

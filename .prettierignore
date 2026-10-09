@@ -1,0 +1,14 @@
+node_modules/
+dist/
+build/
+coverage/
+.next/
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
+.agents/
+.specify/
+.turbo/
+.github/
+docs/
+**.md
