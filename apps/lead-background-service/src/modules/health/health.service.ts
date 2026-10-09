@@ -1,9 +1,7 @@
 export class HealthService {
-  getHealth(): { status: 'ok' | 'degraded' | 'down'; kafka: 'up' | 'down'; db: 'up' | 'down' } {
+  getHealth(): { status: 'ok' | 'degraded' | 'down' } {
     return {
-      status: 'ok',
-      kafka: 'up',
-      db: 'up'
+      status: 'ok'
     };
   }
 }

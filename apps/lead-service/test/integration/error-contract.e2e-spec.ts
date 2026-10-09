@@ -11,12 +11,7 @@ describe('Error contract', () => {
   let unavailableReason: string | undefined;
 
   beforeAll(async () => {
-    try {
-      running = await createIntegrationApp();
-    } catch (error) {
-      unavailableReason =
-        error instanceof Error ? error.message : 'Unknown integration setup error';
-    }
+    running = await createIntegrationApp();
   });
 
   afterAll(async () => {
