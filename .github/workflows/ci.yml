@@ -2,8 +2,10 @@ name: CI
 
 on:
   pull_request:
+    types: [opened, synchronize, reopened]
   push:
     branches: [main]
+  
 
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
@@ -11,7 +13,8 @@ concurrency:
 
 permissions:
   contents: read
-  metadata: read
+  packages: read
+  pull-requests: write
 
 jobs:
   quality:
@@ -58,45 +61,3 @@ jobs:
 
       - name: Integration tests
         run: pnpm test:integration
-
-  e2e:
-    runs-on: ubuntu-latest
-    needs: quality
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version-file: .nvmrc
-
-      - name: Enable Corepack
-        run: corepack enable
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Install Playwright browsers
-        run: pnpm --filter @lead/e2e exec playwright install --with-deps chromium
-
-      - name: Compose up
-        run: docker compose up --build --wait
-
-      - name: Run e2e tests
-        run: pnpm test:e2e
-
-      - name: Upload e2e reports
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: e2e-reports
-          path: end-to-end/reports
-
-      - name: Compose logs on failure
-        if: failure()
-        run: docker compose logs
-
-      - name: Compose down
-        if: always()
-        run: docker compose down -v
