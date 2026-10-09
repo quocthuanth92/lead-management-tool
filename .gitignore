@@ -51,3 +51,4 @@ next-env.d.ts
 .vscode/settings.json
 .idea/
 end-to-end/reports/
+docs/Step-by-step.md

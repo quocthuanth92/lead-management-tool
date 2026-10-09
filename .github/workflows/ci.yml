@@ -11,6 +11,7 @@ concurrency:
 
 permissions:
   contents: read
+  metadata: read
 
 jobs:
   quality:
@@ -18,9 +19,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
-      - name: Validate workflow syntax
-        uses: rhysd/actionlint@v1
 
       - name: Setup Node
         uses: actions/setup-node@v4

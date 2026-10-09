@@ -5,7 +5,7 @@
   "type": "commonjs",
   "scripts": {
     "build": "pnpm nest build",
-    "dev": "env-cmd -f .env.development pnpm nest start --watch",
+    "dev": "pnpm nest start --watch",
     "start": "node dist/main.js",
     "lint": "eslint \"src/**/*.ts\" \"test/**/*.ts\"",
     "typecheck": "tsc -p tsconfig.json --noEmit",
