@@ -6,8 +6,10 @@ on:
     branches: [main]
 
 concurrency:
-  group: docker-${{ github.ref }}
+  group: ${{ github.event_name }}-${{ github.ref }}-build-workflow
   cancel-in-progress: true
+
+run-name: 🚀 Event ${{ github.event_name }} - ${{ github.event.head_commit.message || github.event.pull_request.title || github.ref_name }}
 
 permissions:
   contents: read
@@ -15,6 +17,7 @@ permissions:
 
 jobs:
   build-images:
+    if: ${{ github.event.pull_request.merged == true && github.event_name == 'pull_request' }}
     runs-on: ubuntu-latest
     strategy:
       matrix:

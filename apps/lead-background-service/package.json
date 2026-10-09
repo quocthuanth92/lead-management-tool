@@ -6,7 +6,7 @@
   "scripts": {
     "build": "pnpm nest build",
     "dev": "pnpm nest start --watch",
-    "start": "node dist/main.js",
+    "start": "node dist/src/main.js",
     "lint": "eslint \"src/**/*.ts\"",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "jest --runInBand --config jest.config.cjs"
