@@ -7,7 +7,7 @@ export class HealthController {
   constructor(private readonly healthService: HealthService) {}
 
   @Get()
-  getHealth(): { status: 'ok' | 'degraded' | 'down'; kafka: 'up' | 'down'; db: 'up' | 'down' } {
+  getHealth(): { status: 'ok' | 'degraded' | 'down' } {
     return this.healthService.getHealth();
   }
 }
