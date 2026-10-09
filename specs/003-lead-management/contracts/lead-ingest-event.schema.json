@@ -1,0 +1,62 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lead-management.local/schemas/lead-ingest-event.schema.json",
+  "title": "LeadIngestEvent",
+  "description": "Value of messages on topic `leads.incoming` (key = eventId). Source of truth in code: zod schema in @lead/shared-contracts (events/lead-ingest-event.ts); a parity test keeps this file in sync.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "eventId", "occurredAt", "lead"],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "eventId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Stable unique id of the event; redelivery with the same id never creates a second lead."
+    },
+    "occurredAt": { "type": "string", "format": "date-time" },
+    "lead": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["fullName", "phone", "message"],
+      "properties": {
+        "fullName": { "type": "string", "minLength": 1, "maxLength": 120 },
+        "phone": { "type": "string", "minLength": 7, "maxLength": 25 },
+        "email": { "type": "string", "format": "email", "maxLength": 254 },
+        "message": { "type": "string", "minLength": 1, "maxLength": 2000 }
+      }
+    }
+  },
+  "$defs": {
+    "DeadLetterEnvelope": {
+      "description": "Value published to `leads.incoming.dlq` when an event cannot be processed. Contains the raw original payload (the only place PII may be retained) and the reason.",
+      "type": "object",
+      "required": [
+        "originalValue",
+        "reason",
+        "failedAt",
+        "attempts",
+        "sourceTopic",
+        "sourcePartition",
+        "sourceOffset"
+      ],
+      "properties": {
+        "originalValue": {
+          "type": "string",
+          "description": "Raw message value as received (UTF-8)"
+        },
+        "originalKey": { "type": ["string", "null"] },
+        "reason": { "enum": ["INVALID_PAYLOAD", "PROCESSING_FAILED"] },
+        "details": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Validation paths/messages or error class names; never payload values"
+        },
+        "failedAt": { "type": "string", "format": "date-time" },
+        "attempts": { "type": "integer", "minimum": 0 },
+        "sourceTopic": { "type": "string" },
+        "sourcePartition": { "type": "integer" },
+        "sourceOffset": { "type": "string" }
+      }
+    }
+  }
+}
