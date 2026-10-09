@@ -10,3 +10,5 @@ yarn.lock
 .specify/
 .turbo/
 .github/
+docs/
+**.md

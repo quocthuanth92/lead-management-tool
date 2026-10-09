@@ -1,19 +1,19 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: "standalone",
+  output: 'standalone',
   reactCompiler: true,
   compiler: {
-    removeConsole: process.env.NODE_ENV === "production",
+    removeConsole: process.env.NODE_ENV === 'production'
   },
   async redirects() {
     return [
       {
-        source: "/dashboard",
-        destination: "/dashboard",
-        permanent: false,
-      },
+        source: '/dashboard',
+        destination: '/dashboard',
+        permanent: false
+      }
     ];
-  },
+  }
 };
 
 export default nextConfig;
