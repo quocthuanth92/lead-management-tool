@@ -201,7 +201,7 @@ sequenceDiagram
     participant BL as Business-layer
     participant RL as Repository-layer 
     end
-    participant R as Redis Search
+    participant R as Redis 
     participant M as MongoDB  
     C->>ULW: HTTP /lead-management      
     ULW->>ULW: verify JWT
