@@ -388,11 +388,11 @@
 
 ## Phase 17: Polish & Cross-Cutting
 
-- [ ] T135 [P] Fix `specs/003-lead-management/quickstart.md` command paths to match the implementation (`node dist/src/cli/seed.js`, `pnpm --filter @lead/e2e publish:lead`) and update `README.md` with sign-in, seed, ingestion, and test instructions
-- [ ] T136 [P] Update `docs/system-design-architecture.md`: document the `@lead/persistence` package, port-placement rules (resolves the constitution's `TODO(PORT_PLACEMENT_RULES)`), the `updatedAt` date-range rule, the search-field approach, the Kafka event contract and DLQ, and the removed `PUT /leads/:id/view`
-- [ ] T137 [P] Add FR traceability table (FR-001–FR-033 → test files) at the end of this file and confirm every FR has at least one test; confirm SC-005, SC-007, SC-008 are covered by TC-04, TC-12, TC-03/TC-07b
-- [ ] T138 Review CI/workflows (`.github/workflows/ci.yml`, `.github/workflows/build.yml`) and `turbo.json` so `@lead/persistence` tasks, new integration suites, and E2E run on pull requests; verify Docker images still build
-- [ ] T139 Final gate: `pnpm format:check; pnpm lint; pnpm typecheck; pnpm test; pnpm test:integration; pnpm test:e2e`, then run every quickstart scenario in `specs/003-lead-management/quickstart.md` and confirm the application logs contain no PII
+- [x] T135 [P] Fix `specs/003-lead-management/quickstart.md` command paths to match the implementation (`node dist/src/cli/seed.js`, `pnpm --filter @lead/e2e publish:lead`) and update `README.md` with sign-in, seed, ingestion, and test instructions
+- [x] T136 [P] Update `docs/system-design-architecture.md`: document the `@lead/persistence` package, port-placement rules (resolves the constitution's `TODO(PORT_PLACEMENT_RULES)`), the `updatedAt` date-range rule, the search-field approach, the Kafka event contract and DLQ, and the removed `PUT /leads/:id/view`
+- [x] T137 [P] Add FR traceability table (FR-001–FR-033 → test files) at the end of this file and confirm every FR has at least one test; confirm SC-005, SC-007, SC-008 are covered by TC-04, TC-12, TC-03/TC-07b
+- [x] T138 Review CI/workflows (`.github/workflows/ci.yml`, `.github/workflows/build.yml`) and `turbo.json` so `@lead/persistence` tasks, new integration suites, and E2E run on pull requests; verify Docker images still build
+- [x] T139 Final gate: `pnpm format:check; pnpm lint; pnpm typecheck; pnpm test; pnpm test:integration; pnpm test:e2e`, then run every quickstart scenario in `specs/003-lead-management/quickstart.md` and confirm the application logs contain no PII
 
 ---
 

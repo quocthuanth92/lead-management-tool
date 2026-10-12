@@ -1,7 +1,14 @@
+import { existsSync } from 'node:fs';
+
 import { buildSearchFields, normalizePhone, registerModels } from '@lead/persistence';
 import mongoose from 'mongoose';
 
 import { ScryptPasswordHasher } from '../modules/auth/infrastructure/scrypt-password-hasher';
+
+// Same file the services load at startup; variables already exported in the shell take precedence.
+if (existsSync('.env')) {
+  process.loadEnvFile('.env');
+}
 
 async function seed(): Promise<void> {
   const mongoUri = process.env.MONGODB_URI;
