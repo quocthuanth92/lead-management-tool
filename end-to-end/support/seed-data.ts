@@ -41,7 +41,7 @@ export function uniqueToken(): string {
 export function buildLeadPayload(token: string = uniqueToken()): LeadPayload & { token: string } {
   return {
     token,
-    fullName: `Lead ${token}`,
+    fullName: `Lead e2e ${token}`,
     phone: `+8490${randomDigits(7)}`,
     email: `${token}@e2e.example.test`,
     message: `E2E enquiry ${token}`
