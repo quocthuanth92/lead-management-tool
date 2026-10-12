@@ -36,7 +36,8 @@ pnpm dev
 ```
 
 Expected: the lead service, background service, and web app run through Turbo; seed prints the demo
-salesperson emails (passwords come from `SEED_SALESPERSON_PASSWORD`).
+salesperson emails (passwords come from `SEED_SALESPERSON_PASSWORD`). Open the Swagger UI at
+`http://localhost:3001/api/v1/docs` or its OpenAPI JSON at `http://localhost:3001/api/v1/docs-json`.
 
 ## 4. Manual scenarios
 

@@ -81,6 +81,65 @@ describe('Lead service responses match the OpenAPI contract', () => {
     await stopIntegrationApp(running);
   });
 
+  it('publishes the Swagger document with route security schemes', async () => {
+    const response = await request(app.getHttpServer()).get('/api/v1/docs-json').expect(200);
+    const document = response.body as {
+      openapi: string;
+      servers?: { url: string }[];
+      paths: Record<
+        string,
+        Record<
+          string,
+          {
+            security?: Record<string, string[]>[];
+            requestBody?: {
+              content?: { 'application/json'?: { schema?: { $ref?: string } } };
+            };
+            responses?: Record<
+              string,
+              { content?: { 'application/json'?: { schema?: { $ref?: string } } } }
+            >;
+          }
+        >
+      >;
+      components: {
+        securitySchemes: Record<string, { type: string }>;
+        schemas: Record<
+          string,
+          {
+            enum?: string[];
+            properties?: Record<
+              string,
+              { enum?: string[]; $ref?: string; allOf?: { $ref?: string }[] }
+            >;
+          }
+        >;
+      };
+    };
+
+    expect(document.openapi).toMatch(/^3\./);
+    expect(document.servers?.[0].url).toBe('/api/v1');
+    expect(document.paths['/leads'].post.security).toContainEqual({ apiKeyAuth: [] });
+    expect(document.paths['/leads'].get.security).toContainEqual({ bearerAuth: [] });
+    expect(
+      document.paths['/leads'].post.requestBody?.content?.['application/json']?.schema?.$ref
+    ).toBe('#/components/schemas/CreateLeadDto');
+    expect(
+      document.paths['/leads'].get.responses?.['200'].content?.['application/json']?.schema?.$ref
+    ).toBe('#/components/schemas/PagedLeadListModel');
+    expect(document.components.schemas.CreateLeadDto.properties).toHaveProperty('fullName');
+    expect(document.components.schemas.SetLabelDto.properties?.label.allOf?.[0].$ref).toBe(
+      '#/components/schemas/LeadLabel'
+    );
+    expect(document.components.schemas.LeadLabel.enum).toEqual(['UNLABELED', 'POTENTIAL', 'SPAM']);
+    expect(document.components.securitySchemes).toMatchObject({
+      bearerAuth: { type: 'http' },
+      apiKeyAuth: { type: 'apiKey' }
+    });
+    await request(app.getHttpServer()).get('/api/v1/docs').expect(200);
+    await request(app.getHttpServer()).get('/api/v1/docs-json').expect(200);
+  });
+
   it('validates the login response', async () => {
     const response = await request(app.getHttpServer())
       .post('/api/v1/auth/login')

@@ -23,6 +23,7 @@ import {
 
 import { API_PREFIX } from '@lead/shared-contracts';
 import { AllExceptionsFilter } from '../../src/common/filters/all-exceptions.filter';
+import { setupSwagger } from '../../src/common/openapi/setup-swagger';
 import { CurrentUser } from '../../src/common/decorators/current-user.decorator';
 import { AuthenticatedUser, JwtAuthGuard } from '../../src/common/guards/jwt-auth.guard';
 import { ScryptPasswordHasher } from '../../src/modules/auth/infrastructure/scrypt-password-hasher';
@@ -97,6 +98,7 @@ export async function createIntegrationApp(): Promise<RunningIntegrationApp> {
     new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true, transform: true })
   );
   app.useGlobalFilters(new AllExceptionsFilter());
+  setupSwagger(app);
   await app.init();
 
   const userModel = app.get<Model<UserAttrs>>(getModelToken('User'));
