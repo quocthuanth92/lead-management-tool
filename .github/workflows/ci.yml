@@ -64,113 +64,21 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 45
     env:
-      # Turbo's default strict mode strips variables from task environments; loose mode lets the dev servers and the e2e task read the values below.
-      TURBO_ENV_MODE: loose
       # Placeholder values for CI only. They are not secrets and must never be used outside CI.
-      NODE_ENV: development
-      MONGODB_URI: mongodb://127.0.0.1:27017/lead?replicaSet=rs0&directConnection=true
-      MONGODB_SYNC_INDEXES: 'true'
-      REDIS_URL: redis://127.0.0.1:6379
-      JWT_SECRET: ci-only-jwt-secret-not-for-production-use
-      JWT_EXPIRES_IN: 1h
-      LEAD_SOURCE_API_KEY: ci-only-lead-source-api-key-min-32-chars
-      RATE_LIMIT_TTL: '60'
       RATE_LIMIT_LIMIT: '1000'
-      CORS_ORIGIN: http://localhost:3000
-      CACHE_LIST_TTL_SECONDS: '60'
-      CACHE_LEAD_TTL_SECONDS: '300'
-      SEED_SALESPERSON_PASSWORD: ci-only-seed-password-not-secret
-      LEAD_SERVICE_URL: http://localhost:3001
-      SESSION_COOKIE_NAME: lead_session
-      SESSION_COOKIE_SECURE: 'false'
-      NEXT_PUBLIC_APP_NAME: Lead Management
-      KAFKA_BROKERS: 127.0.0.1:9092
-      KAFKA_CLIENT_ID: lead-background-service
-      KAFKA_GROUP_ID: lead-consumer
-      KAFKA_LEADS_TOPIC: leads.incoming
-      KAFKA_LEADS_DLQ_TOPIC: leads.incoming.dlq
-      CONSUMER_RETRY_ATTEMPTS: '3'
-      CONSUMER_RETRY_DELAY_MS: '1000'
-      ASSIGN_HELD_LEADS_INTERVAL_SECONDS: '30'
-      ASSIGN_HELD_LEADS_BATCH_SIZE: '100'
-      E2E_SERVICE_URL: http://localhost:3001
-      E2E_WEB_URL: http://localhost:3000
-      E2E_LEAD_API_KEY: ci-only-lead-source-api-key-min-32-chars
-      E2E_KAFKA_BROKERS: localhost:9092
-      E2E_USER_A_EMAIL: sales.a@example.com
-      E2E_USER_B_EMAIL: sales.b@example.com
-      E2E_USER_PASSWORD: ci-only-seed-password-not-secret
-      WEB_BASE_URL: http://localhost:3000
-      API_BASE_URL: http://localhost:3001
-      HEADLESS: 'true'
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version-file: .nvmrc
-
-      - name: Enable Corepack
-        run: corepack enable
-
-      - name: Setup pnpm cache
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.pnpm-store
-            .turbo
-          key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      # Workspace packages resolve to their dist output, so they must be built before the apps and the seed run.
-      - name: Build workspace packages
-        run: pnpm build
-
-      - name: Start Mongo, Redis and Kafka
-        run: docker compose up -d --wait mongo redis kafka
+      # Builds the service images and starts the full stack, including the e2e runner profile, from docker-compose.yml.
+      - name: Start stack
+        run: docker compose --profile e2e up --build --detach --wait --wait-timeout 600 mongo redis kafka lead-service lead-background-service lead-web
 
       - name: Seed salespeople
-        run: pnpm --filter @lead/lead-service seed
-
-      # Web runs from its production build: Next's dev server echoes request cookies in its payload,
-      # which would make the "session token is never exposed" check meaningless.
-      - name: Start lead service and background service
-        shell: bash
-        run: |
-          setsid nohup pnpm lead-service:dev > lead-service.log 2>&1 &
-          setsid nohup pnpm lead-background-service:dev > background-service.log 2>&1 &
-
-      - name: Start web (production build)
-        shell: bash
-        run: setsid nohup pnpm --filter @lead/lead-web start > web.log 2>&1 &
-
-      - name: Wait for the apps to be ready
-        shell: bash
-        run: |
-          for url in http://localhost:3001/api/v1/health http://localhost:3002/health http://localhost:3000/login; do
-            ready=false
-            for attempt in $(seq 1 120); do
-              if curl --silent --fail --max-time 5 "$url" > /dev/null; then
-                ready=true
-                break
-              fi
-              sleep 2
-            done
-            if [ "$ready" != "true" ]; then
-              echo "Timed out waiting for $url"
-              exit 1
-            fi
-            echo "Ready: $url"
-          done
+        run: docker compose run --rm lead-service node dist/src/cli/seed.js
 
       - name: Run end-to-end tests
-        run: pnpm test:e2e
+        run: docker compose --profile e2e run --rm e2e
 
       - name: Upload end-to-end reports
         if: always()
@@ -182,10 +90,18 @@ jobs:
             end-to-end/reports/failures/
           if-no-files-found: warn
 
+      - name: Collect compose logs
+        if: failure()
+        run: docker compose --profile e2e logs --no-color --timestamps > compose.log 2>&1
+
       - name: Upload service logs
         if: failure()
         uses: actions/upload-artifact@v4
         with:
           name: service-logs
-          path: '*.log'
+          path: compose.log
           if-no-files-found: warn
+
+      - name: Stop stack
+        if: always()
+        run: docker compose --profile e2e down --volumes --remove-orphans

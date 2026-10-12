@@ -9,7 +9,8 @@ services:
       - mongo-data:/data/db
       - ./docker/mongo/init-replica.sh:/docker-entrypoint-initdb.d/init-replica.sh:ro
     healthcheck:
-      test: ["CMD-SHELL", "mongosh --quiet --eval 'if (!db.hello().isWritablePrimary) { quit(1); }'"]
+      test:
+        ['CMD-SHELL', "mongosh --quiet --eval 'if (!db.hello().isWritablePrimary) { quit(1); }'"]
       interval: 10s
       timeout: 5s
       retries: 15
@@ -64,6 +65,11 @@ services:
       dockerfile: apps/lead-service/Dockerfile
     env_file:
       - apps/lead-service/.env.example
+    # The env files target host-run development on localhost; containers reach each other by service name.
+    environment:
+      MONGODB_URI: mongodb://mongo:27017/lead?replicaSet=rs0&directConnection=true
+      REDIS_URL: redis://redis:6379
+      RATE_LIMIT_LIMIT: ${RATE_LIMIT_LIMIT:-100}
     depends_on:
       mongo:
         condition: service_healthy
@@ -86,6 +92,10 @@ services:
       dockerfile: apps/lead-background-service/Dockerfile
     env_file:
       - apps/lead-background-service/.env.example
+    environment:
+      MONGODB_URI: mongodb://mongo:27017/lead?replicaSet=rs0&directConnection=true
+      REDIS_URL: redis://redis:6379
+      KAFKA_BROKERS: kafka:9092
     depends_on:
       mongo:
         condition: service_healthy
@@ -110,6 +120,8 @@ services:
       dockerfile: apps/lead-web/Dockerfile
     env_file:
       - apps/lead-web/.env.example
+    environment:
+      LEAD_SERVICE_URL: http://lead-service:3001
     depends_on:
       lead-service:
         condition: service_healthy
@@ -134,12 +146,25 @@ services:
     environment:
       - WEB_BASE_URL=http://lead-web:3000
       - API_BASE_URL=http://lead-service:3001
+      - E2E_WEB_URL=http://lead-web:3000
+      - E2E_SERVICE_URL=http://lead-service:3001
+      - E2E_KAFKA_BROKERS=kafka:9092
+    # Chromium needs more shared memory than Docker's 64MB default.
+    shm_size: 1gb
+    volumes:
+      - ./end-to-end/reports:/app/end-to-end/reports
     depends_on:
-      lead-web:
+      mongo:
+        condition: service_healthy
+      kafka:
         condition: service_healthy
       lead-service:
         condition: service_healthy
-    restart: always
+      lead-background-service:
+        condition: service_healthy
+      lead-web:
+        condition: service_healthy
+    restart: 'no'
 
 volumes:
   mongo-data:
