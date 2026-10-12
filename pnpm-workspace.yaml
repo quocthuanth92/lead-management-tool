@@ -3,6 +3,7 @@ packages:
   - packages/*
   - end-to-end
 allowBuilds:
+  '@scarf/scarf': false
   cpu-features: true
   esbuild: true
   protobufjs: true

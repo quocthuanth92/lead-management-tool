@@ -1,3 +1,4 @@
+name: lead-management-tool
 services:
   mongo:
     container_name: mongo
@@ -9,7 +10,8 @@ services:
       - mongo-data:/data/db
       - ./docker/mongo/init-replica.sh:/docker-entrypoint-initdb.d/init-replica.sh:ro
     healthcheck:
-      test: ['CMD-SHELL', 'mongosh --quiet --eval "db.hello().isWritablePrimary" | grep true']
+      test:
+        ['CMD-SHELL', "mongosh --quiet --eval 'if (!db.hello().isWritablePrimary) { quit(1); }'"]
       interval: 10s
       timeout: 5s
       retries: 15
@@ -17,7 +19,7 @@ services:
 
   redis:
     container_name: redis
-    image: redis/redis-stack:latest
+    image: redis/redis-stack-server:latest
     ports:
       - '6379:6379'
     healthcheck:
@@ -63,11 +65,12 @@ services:
       context: .
       dockerfile: apps/lead-service/Dockerfile
     env_file:
-      - .env.example
+      - apps/lead-service/.env.example
+    # The env files target host-run development on localhost; containers reach each other by service name.
     environment:
-      - PORT=3001
-      - MONGODB_URI=mongodb://mongo:27017/lead
-      - REDIS_URL=redis://redis:6379
+      MONGODB_URI: mongodb://mongo:27017/lead?replicaSet=rs0&directConnection=true
+      REDIS_URL: redis://redis:6379
+      RATE_LIMIT_LIMIT: ${RATE_LIMIT_LIMIT:-100}
     depends_on:
       mongo:
         condition: service_healthy
@@ -75,6 +78,7 @@ services:
         condition: service_healthy
     ports:
       - '3001:3001'
+    restart: always
     healthcheck:
       test: ['CMD-SHELL', 'wget -qO- http://localhost:3001/api/v1/health >/dev/null 2>&1']
       interval: 10s
@@ -88,18 +92,21 @@ services:
       context: .
       dockerfile: apps/lead-background-service/Dockerfile
     env_file:
-      - .env.example
+      - apps/lead-background-service/.env.example
     environment:
-      - PORT=3002
-      - MONGODB_URI=mongodb://mongo:27017/lead
-      - KAFKA_BROKERS=kafka:9092
+      MONGODB_URI: mongodb://mongo:27017/lead?replicaSet=rs0&directConnection=true
+      REDIS_URL: redis://redis:6379
+      KAFKA_BROKERS: kafka:9092
     depends_on:
       mongo:
+        condition: service_healthy
+      redis:
         condition: service_healthy
       kafka:
         condition: service_healthy
     ports:
       - '3002:3002'
+    restart: always
     healthcheck:
       test: ['CMD-SHELL', 'wget -qO- http://localhost:3002/health >/dev/null 2>&1']
       interval: 10s
@@ -113,15 +120,15 @@ services:
       context: .
       dockerfile: apps/lead-web/Dockerfile
     env_file:
-      - .env.example
+      - apps/lead-web/.env.example
     environment:
-      - LEAD_SERVICE_URL=http://lead-service:3001
-      - HOSTNAME=0.0.0.0
+      LEAD_SERVICE_URL: http://lead-service:3001
     depends_on:
       lead-service:
         condition: service_healthy
     ports:
       - '3000:3000'
+    restart: always
     healthcheck:
       test: ['CMD-SHELL', 'wget -qO- http://localhost:3000/api/health >/dev/null 2>&1']
       interval: 10s
@@ -136,15 +143,29 @@ services:
       dockerfile: end-to-end/Dockerfile
     profiles: ['e2e']
     env_file:
-      - .env.example
+      - end-to-end/.env.example
     environment:
       - WEB_BASE_URL=http://lead-web:3000
       - API_BASE_URL=http://lead-service:3001
+      - E2E_WEB_URL=http://lead-web:3000
+      - E2E_SERVICE_URL=http://lead-service:3001
+      - E2E_KAFKA_BROKERS=kafka:9092
+    # Chromium needs more shared memory than Docker's 64MB default.
+    shm_size: 1gb
+    volumes:
+      - ./end-to-end/reports:/app/end-to-end/reports
     depends_on:
-      lead-web:
+      mongo:
+        condition: service_healthy
+      kafka:
         condition: service_healthy
       lead-service:
         condition: service_healthy
+      lead-background-service:
+        condition: service_healthy
+      lead-web:
+        condition: service_healthy
+    restart: 'no'
 
 volumes:
   mongo-data:

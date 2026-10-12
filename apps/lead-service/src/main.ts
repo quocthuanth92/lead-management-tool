@@ -1,12 +1,15 @@
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { API_PREFIX } from '@lead/shared-contracts';
+import helmet from 'helmet';
 
 import { AppModule } from './app.module';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
+import { setupSwagger } from './common/openapi/setup-swagger';
 
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule, { bufferLogs: true });
+  app.use(helmet());
   app.setGlobalPrefix(API_PREFIX);
   app.useGlobalPipes(
     new ValidationPipe({
@@ -16,6 +19,7 @@ async function bootstrap(): Promise<void> {
     })
   );
   app.useGlobalFilters(new AllExceptionsFilter());
+  setupSwagger(app);
   app.enableShutdownHooks();
 
   const port = Number(process.env.PORT ?? 3001);

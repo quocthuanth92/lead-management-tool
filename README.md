@@ -36,6 +36,19 @@ pnpm compose:up
 pnpm compose:down
 ```
 
+## End-to-end tests in containers
+
+Runs the full stack and the Playwright/Cucumber suite inside Docker, the same way CI does:
+
+```powershell
+docker compose --profile e2e up --build --detach --wait --wait-timeout 600 mongo redis kafka lead-service lead-background-service lead-web
+docker compose run --rm lead-service node dist/src/cli/seed.js
+docker compose --profile e2e run --rm e2e
+docker compose --profile e2e down --volumes --remove-orphans
+```
+
+Reports are written to `end-to-end/reports/` on the host.
+
 ## Validation command matrix
 
 | Command | Result |

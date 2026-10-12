@@ -1,4 +1,5 @@
 import { Controller, Get } from '@nestjs/common';
+import type { HealthResponse } from '@lead/shared-contracts';
 
 import { HealthService } from './health.service';
 
@@ -7,7 +8,7 @@ export class HealthController {
   constructor(private readonly healthService: HealthService) {}
 
   @Get()
-  getHealth(): { status: 'ok' | 'degraded' | 'down' } {
+  getHealth(): Promise<HealthResponse> {
     return this.healthService.getHealth();
   }
 }

@@ -1,2 +1,0 @@
-export const CONSUMER_RETRY_ATTEMPTS = 3;
-export const CONSUMER_RETRY_DELAY_MS = 1000;

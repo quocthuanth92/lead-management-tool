@@ -8,6 +8,7 @@ FROM base AS deps
 COPY package.json pnpm-workspace.yaml turbo.json tsconfig.base.json .npmrc ./
 COPY packages ./packages
 COPY apps/lead-service/package.json apps/lead-service/package.json
+RUN apk add --no-cache python3 make g++
 RUN pnpm install --frozen-lockfile=false
 
 FROM base AS build

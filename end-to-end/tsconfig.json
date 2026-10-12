@@ -5,5 +5,5 @@
     "moduleResolution": "bundler",
     "types": ["node"]
   },
-  "include": ["features/**/*.ts", "step-definitions/**/*.ts", "support/**/*.ts"]
+  "include": ["features/**/*.ts", "step-definitions/**/*.ts", "support/**/*.ts", "scripts/**/*.ts"]
 }

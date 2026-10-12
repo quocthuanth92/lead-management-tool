@@ -10,5 +10,13 @@ module.exports = {
   moduleNameMapper: {
     '^(\\.{1,2}/.*)\\.js$': '$1'
   },
-  moduleFileExtensions: ['ts', 'js', 'json']
+  moduleFileExtensions: ['ts', 'js', 'json'],
+  collectCoverageFrom: [
+    'src/modules/**/domain/**/*.ts',
+    'src/modules/**/application/**/*.ts',
+    '!src/**/*.spec.ts'
+  ],
+  coverageThreshold: {
+    global: { lines: 90, branches: 90 }
+  }
 };

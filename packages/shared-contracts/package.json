@@ -11,10 +11,14 @@
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "jest --runInBand --config jest.config.cjs"
   },
+  "dependencies": {
+    "zod": "3.25.76"
+  },
   "devDependencies": {
     "@types/jest": "30.0.0",
     "jest": "30.2.0",
     "ts-jest": "29.4.5",
-    "typescript": "5.9.3"
+    "typescript": "5.9.3",
+    "yaml": "2.8.1"
   }
 }

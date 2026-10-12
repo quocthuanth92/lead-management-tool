@@ -1,5 +1,7 @@
 import { Module } from '@nestjs/common';
-import { ThrottlerModule } from '@nestjs/throttler';
+import { ConfigService } from '@nestjs/config';
+import { APP_GUARD } from '@nestjs/core';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 
 import { ConfigAppModule } from './core/config/config.module';
 import { DatabaseModule } from './core/database/database.module';
@@ -13,12 +15,17 @@ import { UsersModule } from './modules/users/users.module';
 @Module({
   imports: [
     ConfigAppModule,
-    ThrottlerModule.forRoot([
-      {
-        ttl: Number(process.env.RATE_LIMIT_TTL ?? 60) * 1000,
-        limit: Number(process.env.RATE_LIMIT_LIMIT ?? 100)
-      }
-    ]),
+    ThrottlerModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        throttlers: [
+          {
+            ttl: config.get<number>('RATE_LIMIT_TTL', 60) * 1000,
+            limit: config.get<number>('RATE_LIMIT_LIMIT', 100)
+          }
+        ]
+      })
+    }),
     DatabaseModule,
     RedisModule,
     HealthModule,
@@ -26,6 +33,7 @@ import { UsersModule } from './modules/users/users.module';
     UsersModule,
     LeadsModule,
     CacheModule
-  ]
+  ],
+  providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }]
 })
 export class AppModule {}

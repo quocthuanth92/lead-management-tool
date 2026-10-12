@@ -13,7 +13,7 @@ Given('the lead service is running', async function () {
 });
 
 When('I request the lead service health endpoint', async function (this: CustomWorld) {
-  response = await getServiceHealth(this);
+  response = await getServiceHealth(this.api!);
 });
 
 Then('the lead service health response should include {string}', async function (field: string) {
@@ -21,4 +21,9 @@ Then('the lead service health response should include {string}', async function 
   assert.equal(response.status(), 200);
   const json = (await response.json()) as Record<string, unknown>;
   assert.ok(field in json);
+});
+
+Then('I should receive a 200 OK response', async function () {
+  assert.ok(response);
+  assert.equal(response.status(), 200);
 });

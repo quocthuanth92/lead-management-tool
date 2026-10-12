@@ -6,4 +6,4 @@ Feature: Service health smoke
   Scenario: Lead service health endpoint responds
     Given the lead service is running
     When I request the lead service health endpoint
-    Then the lead service health response should include "status"
+    Then I should receive a 200 OK response

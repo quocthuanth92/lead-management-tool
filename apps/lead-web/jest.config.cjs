@@ -4,6 +4,7 @@ module.exports = {
     '^.+\\.(t|j)sx?$': ['ts-jest', { tsconfig: 'tsconfig.jest.json' }]
   },
   moduleNameMapper: {
+    '^@/(.*)$': '<rootDir>/src/$1',
     '^server-only$': '<rootDir>/src/test/mocks/server-only.ts',
     '^next/headers$': '<rootDir>/src/test/mocks/next-headers.ts'
   },

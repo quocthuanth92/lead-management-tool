@@ -8,12 +8,14 @@
     "lint": "eslint \"**/*.{ts,js}\"",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "echo \"Use pnpm test:e2e for end-to-end smoke tests\"",
-    "test:e2e": "cucumber-js \"features/**/*.feature\" --import \"step-definitions/**/*.js\" --import \"support/**/*.js\" --format progress --format html:reports/cucumber-report.html --format json:reports/cucumber-report.json"
+    "test:e2e": "tsx ./node_modules/@cucumber/cucumber/bin/cucumber.js \"features/**/*.feature\" --import \"step-definitions/**/*.ts\" --import \"support/**/*.ts\" --format progress --format html:reports/cucumber-report.html --format json:reports/cucumber-report.json",
+    "publish:lead": "tsx scripts/publish-lead.ts"
   },
   "dependencies": {
     "@cucumber/cucumber": "12.2.0",
     "@playwright/test": "1.56.0",
-    "dotenv": "17.2.3"
+    "dotenv": "17.2.3",
+    "kafkajs": "2.2.4"
   },
   "devDependencies": {
     "@types/node": "24.7.2",
