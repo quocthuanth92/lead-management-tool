@@ -77,18 +77,74 @@ jobs:
       - name: Seed salespeople
         run: docker compose run --rm lead-service node dist/src/cli/seed.js
 
+      # Kept after exit (no --rm) so the reports can be copied out of the container below.
       - name: Run end-to-end tests
-        run: docker compose --profile e2e run --rm e2e
+        id: run-e2e
+        run: docker compose --profile e2e run --name e2e-runner e2e
+
+      - name: Copy end-to-end reports from container
+        if: always()
+        run: |
+          docker cp e2e-runner:/app/end-to-end/reports ./e2e-report || echo "::warning::No end-to-end reports were found in the container"
 
       - name: Upload end-to-end reports
+        id: upload-reports
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: e2e-reports
-          path: |
-            end-to-end/reports/
-            end-to-end/reports/failures/
+          path: e2e-report/
           if-no-files-found: warn
+
+      - name: Comment end-to-end report on pull request
+        if: always() && github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        env:
+          E2E_OUTCOME: ${{ steps.run-e2e.outcome }}
+          ARTIFACT_URL: ${{ steps.upload-reports.outputs.artifact-url }}
+        with:
+          script: |
+            const fs = require('fs');
+            const marker = '<!-- e2e-report -->';
+            const reportPath = 'e2e-report/cucumber-report.json';
+            const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+            const link = process.env.ARTIFACT_URL || runUrl;
+            let body;
+            if (!fs.existsSync(reportPath)) {
+              body = `${marker}\n### End-to-end report\n\nNo Cucumber JSON report was produced (test outcome: \`${process.env.E2E_OUTCOME}\`). [Run logs](${runUrl})`;
+            } else {
+              const features = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
+              let total = 0;
+              const failed = [];
+              for (const feature of features) {
+                for (const scenario of feature.elements ?? []) {
+                  if (scenario.type === 'background') continue;
+                  total += 1;
+                  const ok = (scenario.steps ?? []).every((step) => ['passed', 'skipped'].includes(step.result?.status));
+                  if (!ok) failed.push(`- ${feature.name} › ${scenario.name}`);
+                }
+              }
+              const status = failed.length === 0 && total > 0 ? 'Passed' : 'Failed';
+              body = [
+                marker,
+                '### End-to-end report',
+                '',
+                `**Result:** ${status}`,
+                `**Scenarios:** ${total} total, ${total - failed.length} passed, ${failed.length} failed`,
+                '',
+                failed.length > 0 ? `**Failed scenarios:**\n${failed.join('\n')}\n` : '',
+                `[Download the full HTML report (artifact e2e-reports)](${link})`,
+              ].join('\n');
+            }
+            const { owner, repo } = context.repo;
+            const issue_number = context.payload.pull_request.number;
+            const { data: comments } = await github.rest.issues.listComments({ owner, repo, issue_number, per_page: 100 });
+            const existing = comments.find((c) => c.body?.includes(marker) && c.user?.type === 'Bot');
+            if (existing) {
+              await github.rest.issues.updateComment({ owner, repo, comment_id: existing.id, body });
+            } else {
+              await github.rest.issues.createComment({ owner, repo, issue_number, body });
+            }
 
       - name: Collect compose logs
         if: failure()
@@ -104,4 +160,6 @@ jobs:
 
       - name: Stop stack
         if: always()
-        run: docker compose --profile e2e down --volumes --remove-orphans
+        run: |
+          docker rm -f e2e-runner || true
+          docker compose --profile e2e down --volumes --remove-orphans
