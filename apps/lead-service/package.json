@@ -10,8 +10,8 @@
     "seed": "pnpm build && node dist/src/cli/seed.js",
     "lint": "eslint \"src/**/*.ts\" \"test/**/*.ts\"",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "test": "pnpm jest --runInBand --config jest.config.cjs --coverage",
-    "test:integration": "pnpm jest --runInBand --config test/jest-integration.config.cjs --coverage"
+    "test": "pnpm jest --runInBand --config jest.config.cjs",
+    "test:integration": "pnpm jest --runInBand --config test/jest-integration.config.cjs"
   },
   "dependencies": {
     "@lead/persistence": "workspace:*",
