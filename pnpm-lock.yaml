@@ -302,6 +302,9 @@ importers:
       class-validator:
         specifier: 0.14.2
         version: 0.14.2
+      helmet:
+        specifier: ^8.3.0
+        version: 8.3.0
       ioredis:
         specifier: 5.8.2
         version: 5.8.2(supports-color@8.1.1)
@@ -339,6 +342,9 @@ importers:
       '@types/supertest':
         specifier: 6.0.3
         version: 6.0.3
+      ajv:
+        specifier: ^8.20.0
+        version: 8.20.0
       jest:
         specifier: 30.2.0
         version: 30.2.0(@types/node@24.7.2)(supports-color@8.1.1)(ts-node@10.9.2(@types/node@24.7.2)(typescript@5.9.3))
@@ -357,6 +363,9 @@ importers:
       typescript:
         specifier: 5.9.3
         version: 5.9.3
+      yaml:
+        specifier: ^2.9.1
+        version: 2.9.1
 
   apps/lead-web:
     dependencies:
@@ -3746,6 +3755,10 @@ packages:
   hasown@2.0.4:
     resolution: {integrity: sha512-T2UbfbBEF32wiepXIsMlTW9+dDYC6wMh/t/vYA4tuOMKqWz/n3vr1NFSxQiyP+zk2mXsoMA/i/7qV6LKut1t1A==}
     engines: {node: '>= 0.4'}
+
+  helmet@8.3.0:
+    resolution: {integrity: sha512-Qgpiaws3Sm30Av8Eah6sjMCZZwjlBu+E68rhpCWBshY1lb09HtLwj5GviX0OyQIn+ulUS0iX0AxN5n3tLZzz1w==}
+    engines: {node: '>=18.0.0'}
 
   hono@4.13.13:
     resolution: {integrity: sha512-CQ46U0ZkAGmbT/4UxdzzGJpacP2IeKgY4a5/tOI9AABbpOMfK739wfDXmv1usCk+3RkKj1hQy4/fjhiwa2xlrA==}
@@ -9393,6 +9406,8 @@ snapshots:
   hasown@2.0.4:
     dependencies:
       function-bind: 1.1.2
+
+  helmet@8.3.0: {}
 
   hono@4.13.13: {}
 

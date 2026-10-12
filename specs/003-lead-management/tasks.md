@@ -1,4 +1,4 @@
-﻿# Tasks: Lead Management
+# Tasks: Lead Management
 
 **Input**: Design documents from `/specs/003-lead-management/`
 
@@ -175,18 +175,18 @@
 
 ### Tests (write first)
 
-- [ ] T060 [P] [US1] Unit tests `apps/lead-service/src/modules/leads/domain/value-objects/date-range.spec.ts`: default = `[now − 6 months, now]` (injectable clock); date-only `toDate` inclusive to end of day (UTC); `fromDate > toDate` rejected; garbage dates rejected
-- [ ] T061 [P] [US1] Unit tests `apps/lead-service/src/modules/leads/application/list-leads.service.spec.ts` (inbox mode): uses only the caller's `userId`; default range/page 1/limit 20; `limit` > 200 rejected; sort spec = `{ hasView: 1, updatedAt: -1, _id: -1 }`; cache hit skips the repository; miss populates cache with TTL; Redis error falls back to the repository; `total` returned
-- [ ] T062 [P] [US1] DTO tests `apps/lead-service/src/modules/leads/interface/http/dto/list-leads-query.dto.spec.ts`: `page=0`, `limit=500`, `limit=abc`, bad dates → 400; defaults applied; string-to-number transform
-- [ ] T063 [P] [US1] Integration tests `apps/lead-service/test/integration/inbox.e2e-spec.ts` — **TC-01**: 25 leads including >6-month-old ones → only last 6 months, 20 items, correct `total`, page 2 remainder, no duplicates; **TC-01b**: unread before read, each group newest first (using `updatedAt`); **TC-02**: narrow `fromDate`/`toDate`, `limit=500` → 400, `fromDate > toDate` → 400, garbage date → 400 in error shape; **TC-03**: A never sees B's leads; held `UNASSIGNED` leads are invisible; no token → 401; response items contain exactly `id, customerName, email, phone, label, hasView, lastUpdate`
+- [x] T060 [P] [US1] Unit tests `apps/lead-service/src/modules/leads/domain/value-objects/date-range.spec.ts`: default = `[now − 6 months, now]` (injectable clock); date-only `toDate` inclusive to end of day (UTC); `fromDate > toDate` rejected; garbage dates rejected
+- [x] T061 [P] [US1] Unit tests `apps/lead-service/src/modules/leads/application/list-leads.service.spec.ts` (inbox mode): uses only the caller's `userId`; default range/page 1/limit 20; `limit` > 200 rejected; sort spec = `{ hasView: 1, updatedAt: -1, _id: -1 }`; cache hit skips the repository; miss populates cache with TTL; Redis error falls back to the repository; `total` returned
+- [x] T062 [P] [US1] DTO tests `apps/lead-service/src/modules/leads/interface/http/dto/list-leads-query.dto.spec.ts`: `page=0`, `limit=500`, `limit=abc`, bad dates → 400; defaults applied; string-to-number transform
+- [x] T063 [P] [US1] Integration tests `apps/lead-service/test/integration/inbox.e2e-spec.ts` — **TC-01**: 25 leads including >6-month-old ones → only last 6 months, 20 items, correct `total`, page 2 remainder, no duplicates; **TC-01b**: unread before read, each group newest first (using `updatedAt`); **TC-02**: narrow `fromDate`/`toDate`, `limit=500` → 400, `fromDate > toDate` → 400, garbage date → 400 in error shape; **TC-03**: A never sees B's leads; held `UNASSIGNED` leads are invisible; no token → 401; response items contain exactly `id, customerName, email, phone, label, hasView, lastUpdate`
 
 ### Implementation
 
-- [ ] T064 [P] [US1] Implement `apps/lead-service/src/modules/leads/domain/value-objects/date-range.ts` (pure, clock injected)
-- [ ] T065 [US1] Extend `LeadRepositoryPort` with `list(userId, { range, label?, term?, page, limit })` returning `{ items, total }` and implement it in `apps/lead-service/src/modules/leads/infrastructure/repositories/mongoose-lead.repository.ts` (filter `{ userId, assignmentStatus: 'ASSIGNED'?, updatedAt: { $gte, $lte } }`, sort `{ hasView: 1, updatedAt: -1, _id: -1 }`, `skip/limit`, `countDocuments` with the same filter, lean projection to the list fields; map to `LeadListItem` with `lastUpdate`)
-- [ ] T066 [US1] Implement `apps/lead-service/src/modules/leads/application/list-leads.service.ts` (cache-aside via `LeadCachePort`, range via `DateRange`, caller `userId` only)
-- [ ] T067 [P] [US1] Implement `apps/lead-service/src/modules/leads/interface/http/dto/list-leads-query.dto.ts` (`implements ListLeadsQuery`; `page` ≥ 1; `limit` 1–200 from `PAGINATION`; ISO date validators)
-- [ ] T068 [US1] Add `GET /api/v1/leads` (inbox) to `apps/lead-service/src/modules/leads/interface/http/leads.controller.ts` under `JwtAuthGuard`, thin, mapping to the shared `PagedResult<LeadListItem>`; run T060–T063 until green
+- [x] T064 [P] [US1] Implement `apps/lead-service/src/modules/leads/domain/value-objects/date-range.ts` (pure, clock injected)
+- [x] T065 [US1] Extend `LeadRepositoryPort` with `list(userId, { range, label?, term?, page, limit })` returning `{ items, total }` and implement it in `apps/lead-service/src/modules/leads/infrastructure/repositories/mongoose-lead.repository.ts` (filter `{ userId, assignmentStatus: 'ASSIGNED'?, updatedAt: { $gte, $lte } }`, sort `{ hasView: 1, updatedAt: -1, _id: -1 }`, `skip/limit`, `countDocuments` with the same filter, lean projection to the list fields; map to `LeadListItem` with `lastUpdate`)
+- [x] T066 [US1] Implement `apps/lead-service/src/modules/leads/application/list-leads.service.ts` (The cache-aside method uses `LeadCachePort`, employing Redis search to create a temporary index with the expiration time, the total loop leads for that user, and the distance within that index. This index will also be utilized for lead search methods. The cache key is based on the `userId`.)
+- [x] T067 [P] [US1] Implement `apps/lead-service/src/modules/leads/interface/http/dto/list-leads-query.dto.ts` (`implements ListLeadsQuery`; `page` ≥ 1; `limit` 1–200 from `PAGINATION`; ISO date validators)
+- [x] T068 [US1] Add `GET /api/v1/leads` (inbox) to `apps/lead-service/src/modules/leads/interface/http/leads.controller.ts` under `JwtAuthGuard`, thin, mapping to the shared `PagedResult<LeadListItem>`; run T060–T063 until green
 
 **Checkpoint**: Inbox API verified against TC-01–TC-03; US6 + US1 give the first demonstrable slice via API.
 
@@ -200,14 +200,14 @@
 
 ### Tests (write first)
 
-- [ ] T069 [P] [US2] Unit tests `apps/lead-service/src/modules/leads/application/get-lead-details.service.spec.ts`: foreign/missing lead → `NotFoundException` (identical); unread → mark-read called once and `lead:{id}` + owner list version invalidated; already read → no write and no invalidation; cache hit still verifies ownership and still performs the conditional mark-read when unread; activities returned newest first (first `ACTIVITIES_IN_DETAILS` = 50) with `activitiesTotal`; `updatedAt` unchanged
-- [ ] T070 [P] [US2] Integration tests `apps/lead-service/test/integration/details.e2e-spec.ts` — **TC-04**: lead with 3 activities → full fields, activities newest first, `hasView=true`, inbox shows it read, `lastUpdate` unchanged; **TC-04b**: two concurrent opens (`Promise.all`) both 200 with a single read transition; **TC-05**: nonexistent id → 404, malformed id → 400, other user's lead → 404 with the same body as nonexistent
+- [x] T069 [P] [US2] Unit tests `apps/lead-service/src/modules/leads/application/get-lead-details.service.spec.ts`: foreign/missing lead → `NotFoundException` (identical); unread → mark-read called once and `lead:{id}` + owner list version invalidated; already read → no write and no invalidation; cache hit still verifies ownership and still performs the conditional mark-read when unread; activities returned newest first (first `ACTIVITIES_IN_DETAILS` = 50) with `activitiesTotal`; `updatedAt` unchanged
+- [x] T070 [P] [US2] Integration tests `apps/lead-service/test/integration/details.e2e-spec.ts` — **TC-04**: lead with 3 activities → full fields, activities newest first, `hasView=true`, inbox shows it read, `lastUpdate` unchanged; **TC-04b**: two concurrent opens (`Promise.all`) both 200 with a single read transition; **TC-05**: nonexistent id → 404, malformed id → 400, other user's lead → 404 with the same body as nonexistent
 
 ### Implementation
 
-- [ ] T071 [US2] Extend `LeadRepositoryPort` (`findOwned(userId, id)`, `markRead(userId, id)` as `updateOne({ _id, userId, hasView: false }, { $set: { hasView: true } })` returning whether it modified) and `LeadActivityRepositoryPort` (`list(leadId, { page, limit })` newest first with `_id` tiebreak + `count`); implement in `mongoose-lead.repository.ts` and `apps/lead-service/src/modules/leads/infrastructure/repositories/mongoose-lead-activity.repository.ts` (activity repository exposes no update/delete)
-- [ ] T072 [US2] Implement `apps/lead-service/src/modules/leads/application/get-lead-details.service.ts` (cache-aside for the lead doc only; activities always fetched fresh; invalidate only when `markRead` modified a document)
-- [ ] T073 [US2] Add `GET /api/v1/leads/:id` to `leads.controller.ts` with an `ObjectId` param validation pipe (`apps/lead-service/src/common/pipes/parse-object-id.pipe.ts`), mapping to the shared `LeadDetails`; declare it **after** `GET /leads/search` once US5 lands (note in code comment); run T069–T070 until green
+- [x] T071 [US2] Extend `LeadRepositoryPort` (`findOwned(userId, id)`, `markRead(userId, id)` as `updateOne({ _id, userId, hasView: false }, { $set: { hasView: true } })` returning whether it modified) and `LeadActivityRepositoryPort` (`list(leadId, { page, limit })` newest first with `_id` tiebreak + `count`); implement in `mongoose-lead.repository.ts` and `apps/lead-service/src/modules/leads/infrastructure/repositories/mongoose-lead-activity.repository.ts` (activity repository exposes no update/delete)
+- [x] T072 [US2] Implement `apps/lead-service/src/modules/leads/application/get-lead-details.service.ts` (cache-aside for the lead doc only; activities always fetched fresh; invalidate only when `markRead` modified a document)
+- [x] T073 [US2] Add `GET /api/v1/leads/:id` to `leads.controller.ts` with an `ObjectId` param validation pipe (`apps/lead-service/src/common/pipes/parse-object-id.pipe.ts`), mapping to the shared `LeadDetails`; declare it **after** `GET /leads/search` once US5 lands (note in code comment); run T069–T070 until green
 
 **Checkpoint**: Details + read tracking verified (SC-005).
 
@@ -221,15 +221,15 @@
 
 ### Tests (write first)
 
-- [ ] T074 [P] [US4] Unit tests `apps/lead-service/src/modules/leads/application/set-lead-label.service.spec.ts`: valid label replaces the old one; foreign/missing → NotFound; `updatedAt` moves forward; `lead:{id}` and owner list version invalidated; same label re-submitted still returns 200
-- [ ] T075 [P] [US4] DTO tests `apps/lead-service/src/modules/leads/interface/http/dto/set-label.dto.spec.ts`: unknown label, missing body, lowercase value, extra property → 400
-- [ ] T076 [P] [US4] Integration tests `apps/lead-service/test/integration/label.e2e-spec.ts` — **TC-08**: `SPAM` then `POTENTIAL` → exactly one label each time and `lastUpdate` moves; invalid label → 400 and label unchanged; other user's lead → 404; the lead moves within the inbox ordering after the change
+- [x] T074 [P] [US4] Unit tests `apps/lead-service/src/modules/leads/application/set-lead-label.service.spec.ts`: valid label replaces the old one; foreign/missing → NotFound; `updatedAt` moves forward; `lead:{id}` and owner list version invalidated; same label re-submitted still returns 200
+- [x] T075 [P] [US4] DTO tests `apps/lead-service/src/modules/leads/interface/http/dto/set-label.dto.spec.ts`: unknown label, missing body, lowercase value, extra property → 400
+- [x] T076 [P] [US4] Integration tests `apps/lead-service/test/integration/label.e2e-spec.ts` — **TC-08**: `SPAM` then `POTENTIAL` → exactly one label each time and `lastUpdate` moves; invalid label → 400 and label unchanged; other user's lead → 404; the lead moves within the inbox ordering after the change
 
 ### Implementation
 
-- [ ] T077 [US4] Extend `LeadRepositoryPort` with `setLabel(userId, id, label, now)` (single `findOneAndUpdate({ _id, userId }, { $set: { label, updatedAt: now } }, { new: true })`) and implement it in `mongoose-lead.repository.ts`
-- [ ] T078 [US4] Implement `apps/lead-service/src/modules/leads/application/set-lead-label.service.ts` and `apps/lead-service/src/modules/leads/interface/http/dto/set-label.dto.ts` (`@IsIn(LEAD_LABELS)`, `implements SetLabelRequest`)
-- [ ] T079 [US4] Add `PUT /api/v1/leads/:id/label` to `leads.controller.ts` returning `{ id, label, lastUpdate }`; run T074–T076 until green
+- [x] T077 [US4] Extend `LeadRepositoryPort` with `setLabel(userId, id, label, now)` (single `findOneAndUpdate({ _id, userId }, { $set: { label, updatedAt: now } }, { new: true })`) and implement it in `mongoose-lead.repository.ts`
+- [x] T078 [US4] Implement `apps/lead-service/src/modules/leads/application/set-lead-label.service.ts` and `apps/lead-service/src/modules/leads/interface/http/dto/set-label.dto.ts` (`@IsIn(LEAD_LABELS)`, `implements SetLabelRequest`)
+- [x] T079 [US4] Add `PUT /api/v1/leads/:id/label` to `leads.controller.ts` returning `{ id, label, lastUpdate }`; run T074–T076 until green
 
 **Checkpoint**: Labeling verified.
 
@@ -243,15 +243,15 @@
 
 ### Tests (write first)
 
-- [ ] T080 [P] [US3] Unit tests `apps/lead-service/src/modules/leads/application/add-lead-activity.service.spec.ts`: content is trimmed; empty, whitespace-only, and 2001-char content rejected; default type `NOTE`; author id and `authorName` captured from the caller; lead `updatedAt` set to the activity `createdAt` with max semantics (never moves backwards); caches invalidated; foreign/missing lead → NotFound; **the `LeadActivityRepositoryPort` type and the Mongoose adapter expose no update/delete methods** (reflection assertion)
-- [ ] T081 [P] [US3] Unit tests `apps/lead-service/src/modules/leads/application/list-lead-activities.service.spec.ts` (ownership check, newest first, paging, `limit` ≤ 200) and DTO tests `dto/add-activity.dto.spec.ts` (empty content, whitespace, 2001 chars, invalid `type`, extra property → 400)
-- [ ] T082 [P] [US3] Integration tests `apps/lead-service/test/integration/activity.e2e-spec.ts` — **TC-06**: valid `POST` → 201 persisted, lead `lastUpdate` increases and the lead moves up in the inbox, survives an app restart; **TC-07**: empty/whitespace/2001 chars/invalid type/extra field → 400 and nothing persisted; **TC-07b**: `PUT`/`PATCH`/`DELETE` on `/leads/:id/activities` and `/leads/:id/activities/:aid` → 404/405 and stored data unchanged; two near-simultaneous notes both stored in `createdAt` order; other user's lead → 404 on `GET` and `POST`
+- [x] T080 [P] [US3] Unit tests `apps/lead-service/src/modules/leads/application/add-lead-activity.service.spec.ts`: content is trimmed; empty, whitespace-only, and 2001-char content rejected; default type `NOTE`; author id and `authorName` captured from the caller; lead `updatedAt` set to the activity `createdAt` with max semantics (never moves backwards); caches invalidated; foreign/missing lead → NotFound; **the `LeadActivityRepositoryPort` type and the Mongoose adapter expose no update/delete methods** (reflection assertion)
+- [x] T081 [P] [US3] Unit tests `apps/lead-service/src/modules/leads/application/list-lead-activities.service.spec.ts` (ownership check, newest first, paging, `limit` ≤ 200) and DTO tests `dto/add-activity.dto.spec.ts` (empty content, whitespace, 2001 chars, invalid `type`, extra property → 400)
+- [x] T082 [P] [US3] Integration tests `apps/lead-service/test/integration/activity.e2e-spec.ts` — **TC-06**: valid `POST` → 201 persisted, lead `lastUpdate` increases and the lead moves up in the inbox, survives an app restart; **TC-07**: empty/whitespace/2001 chars/invalid type/extra field → 400 and nothing persisted; **TC-07b**: `PUT`/`PATCH`/`DELETE` on `/leads/:id/activities` and `/leads/:id/activities/:aid` → 404/405 and stored data unchanged; two near-simultaneous notes both stored in `createdAt` order; other user's lead → 404 on `GET` and `POST`
 
 ### Implementation
 
-- [ ] T083 [US3] Extend `LeadActivityRepositoryPort` with `add(activity)` and implement it in `mongoose-lead-activity.repository.ts` (`create` only); extend `LeadRepositoryPort` with `touch(userId, id, at)` implemented as `updateOne({ _id, userId }, { $max: { updatedAt: at } })`
-- [ ] T084 [US3] Implement `apps/lead-service/src/modules/leads/application/add-lead-activity.service.ts` and `list-lead-activities.service.ts`, plus DTOs `apps/lead-service/src/modules/leads/interface/http/dto/add-activity.dto.ts` (`type` optional `@IsIn(ACTIVITY_TYPES)`, `content` trimmed, 1–`NOTE_MAX` chars, must contain a non-whitespace character) and `list-activities-query.dto.ts`
-- [ ] T085 [US3] Implement `apps/lead-service/src/modules/leads/interface/http/lead-activities.controller.ts` (replacing the empty placeholder): `POST /api/v1/leads/:id/activities` → 201 `LeadActivityItem`, `GET /api/v1/leads/:id/activities` → `PagedResult<LeadActivityItem>`; no other verbs; remove the empty `application/lead-activities.service.ts` placeholder; run T080–T082 until green
+- [x] T083 [US3] Extend `LeadActivityRepositoryPort` with `add(activity)` and implement it in `mongoose-lead-activity.repository.ts` (`create` only); extend `LeadRepositoryPort` with `touch(userId, id, at)` implemented as `updateOne({ _id, userId }, { $max: { updatedAt: at } })`
+- [x] T084 [US3] Implement `apps/lead-service/src/modules/leads/application/add-lead-activity.service.ts` and `list-lead-activities.service.ts`, plus DTOs `apps/lead-service/src/modules/leads/interface/http/dto/add-activity.dto.ts` (`type` optional `@IsIn(ACTIVITY_TYPES)`, `content` trimmed, 1–`NOTE_MAX` chars, must contain a non-whitespace character) and `list-activities-query.dto.ts`
+- [x] T085 [US3] Implement `apps/lead-service/src/modules/leads/interface/http/lead-activities.controller.ts` (replacing the empty placeholder): `POST /api/v1/leads/:id/activities` → 201 `LeadActivityItem`, `GET /api/v1/leads/:id/activities` → `PagedResult<LeadActivityItem>`; no other verbs; remove the empty `application/lead-activities.service.ts` placeholder; run T080–T082 until green
 
 **Checkpoint**: Activities verified, append-only guarantee tested at unit and HTTP level (SC-008).
 
@@ -265,16 +265,16 @@
 
 ### Tests (write first)
 
-- [ ] T086 [P] [US5] Unit tests `apps/lead-service/src/modules/leads/domain/value-objects/search-term.spec.ts`: trims; length 2–100 enforced; regex metacharacters escaped (`.*`, `(`, `\`, `$where`); phone digits extracted only when ≥ 3 digits; diacritics/case folded exactly like the writer's `fullNameSearch`
-- [ ] T087 [P] [US5] Unit tests extending `list-leads.service.spec.ts` for search mode: requires `q` or `label`; term + label + range combined; label-only; cache key differs per term/label; DTO tests `dto/search-leads-query.dto.spec.ts` (`q` of 1 or 101 chars, unknown label, neither `q` nor `label` → 400)
-- [ ] T088 [P] [US5] Integration tests `apps/lead-service/test/integration/search.e2e-spec.ts` — **TC-09**: partial name in different case/diacritics; **TC-10**: phone typed with `+`, spaces, dashes, parentheses; combined with a narrow date range, and an in-range vs out-of-range match; **TC-10b**: email fragment, label-only, `q` + label, neither → 400, length bounds → 400; **TC-15**: `q` of `.*`, `(`, `\`, `$where` matches literally with no errors and no extra rows; never returns another user's leads; ordering and pagination identical to the inbox
+- [x] T086 [P] [US5] Unit tests `apps/lead-service/src/modules/leads/domain/value-objects/search-term.spec.ts`: trims; length 2–100 enforced; regex metacharacters escaped (`.*`, `(`, `\`, `$where`); phone digits extracted only when ≥ 3 digits; diacritics/case folded exactly like the writer's `fullNameSearch`
+- [x] T087 [P] [US5] Unit tests extending `list-leads.service.spec.ts` for search mode: requires `q` or `label`; term + label + range combined; label-only; cache key differs per term/label; DTO tests `dto/search-leads-query.dto.spec.ts` (`q` of 1 or 101 chars, unknown label, neither `q` nor `label` → 400)
+- [x] T088 [P] [US5] Integration tests `apps/lead-service/test/integration/search.e2e-spec.ts` — **TC-09**: partial name in different case/diacritics; **TC-10**: phone typed with `+`, spaces, dashes, parentheses; combined with a narrow date range, and an in-range vs out-of-range match; **TC-10b**: email fragment, label-only, `q` + label, neither → 400, length bounds → 400; **TC-15**: `q` of `.*`, `(`, `\`, `$where` matches literally with no errors and no extra rows; never returns another user's leads; ordering and pagination identical to the inbox
 
 ### Implementation
 
-- [ ] T089 [P] [US5] Implement `apps/lead-service/src/modules/leads/domain/value-objects/search-term.ts` (uses the same normalizers from `@lead/persistence`)
-- [ ] T090 [US5] Extend `mongoose-lead.repository.ts` `list(...)` to add the `$or` of `fullNameSearch` regex, `emailLower` regex, and `phoneDigits` regex (only when the term has ≥ 3 digits) plus the `label` equality filter as residual filters over the `{ userId, hasView, updatedAt }` candidate set
-- [ ] T091 [US5] Extend `list-leads.service.ts` with search mode and add `apps/lead-service/src/modules/leads/interface/http/dto/search-leads-query.dto.ts` (`q` 2–100 chars; `label` `@IsIn(LEAD_LABELS)`; at least one of `q`/`label`)
-- [ ] T092 [US5] Add `GET /api/v1/leads/search` to `leads.controller.ts` **declared before** `GET /leads/:id`; run T086–T088 until green; run `explain` through the TC-17 test with a search filter and record the docs-examined figure in a comment for the "revisit when > ~5,000" rule (research R-06)
+- [x] T089 [P] [US5] Implement `apps/lead-service/src/modules/leads/domain/value-objects/search-term.ts` (uses the same normalizers from `@lead/persistence`)
+- [x] T090 [US5] Reuse the Redis search index with the cache key created in T066 to perform searches; if the index is invalid, reuse the method used to create that index data.
+- [x] T091 [US5] Extend `list-leads.service.ts` with search mode and add `apps/lead-service/src/modules/leads/interface/http/dto/search-leads-query.dto.ts` (`q` 2–100 chars; `label` `@IsIn(LEAD_LABELS)`; at least one of `q`/`label`), Search only using the RedisSearch index; if it is invalid, recreate the index before searching.
+- [x] T092 [US5] Add `GET /api/v1/leads/search` to `leads.controller.ts` **declared before** `GET /leads/:id`; run T086–T088 until green; run `explain` through the TC-17 test with a search filter and record the docs-examined figure in a comment for the "revisit when > ~5,000" rule (research R-06)
 
 **Checkpoint**: Search verified incl. injection-style inputs.
 
@@ -284,12 +284,12 @@
 
 **Purpose**: Cache, resilience, security, logging, contract drift, and Docker verification for the whole backend.
 
-- [ ] T093 [P] Integration tests `apps/lead-service/test/integration/cache.e2e-spec.ts` — **TC-13**: `GET /leads` twice (second served from Redis, verified via key presence/spy), then activity, label, mark-read, and ingestion each make new data visible immediately; per-user version isolation
-- [ ] T094 [P] Integration tests `apps/lead-service/test/integration/resilience.e2e-spec.ts` — **TC-14**: stop the Redis container → all endpoints still correct and `/api/v1/health` reports redis down; restart → caching resumes
-- [ ] T095 [P] Integration tests `apps/lead-service/test/integration/security-logging.e2e-spec.ts` — **TC-18**: capture Nest logger output during ingest/list/search/details/label/activity and assert it contains no name, phone, email, message, or note content; **TC-15** gaps: tampered token, `x-api-key` on JWT routes, security headers present
-- [ ] T096 [P] Contract-drift check: add `apps/lead-service/test/integration/openapi-contract.e2e-spec.ts` that validates real responses of every endpoint against `specs/003-lead-management/contracts/lead-service.openapi.yaml` (response schemas, status codes); fix code or contract until they agree
+- [x] T093 [P] Integration tests `apps/lead-service/test/integration/cache.e2e-spec.ts` — **TC-13**: `GET /leads` twice (second served from Redis, verified via key presence/spy), then activity, label, mark-read, and ingestion each make new data visible immediately; per-user version isolation
+- [x] T094 [P] Integration tests `apps/lead-service/test/integration/resilience.e2e-spec.ts` — **TC-14**: stop the Redis container → all endpoints still correct and `/api/v1/health` reports redis down; restart → caching resumes
+- [x] T095 [P] Integration tests `apps/lead-service/test/integration/security-logging.e2e-spec.ts` — **TC-18**: capture Nest logger output during ingest/list/search/details/label/activity and assert it contains no name, phone, email, message, or note content; **TC-15** gaps: tampered token, `x-api-key` on JWT routes, security headers present
+- [x] T096 [P] Contract-drift check: add `apps/lead-service/test/integration/openapi-contract.e2e-spec.ts` that validates real responses of every endpoint against `specs/003-lead-management/contracts/lead-service.openapi.yaml` (response schemas, status codes); fix code or contract until they agree
 - [ ] T097 Enforce coverage thresholds: in `apps/lead-service/jest.config.cjs`, `apps/lead-background-service/jest.config.cjs`, and `packages/persistence/jest.config.cjs` set `coverageThreshold` ≥ 90 % lines/branches scoped to `modules/**/domain/**`, `modules/**/application/**` (and `src/ingestion/**`, `src/normalization/**` for persistence); add `--coverage` to their `test` scripts
-- [ ] T098 Backend gate: run `pnpm format:check; pnpm lint; pnpm typecheck; pnpm test; pnpm test:integration`, `docker compose up --build --wait`, `pnpm --filter lead-service seed`, then walk quickstart scenarios 1–3 and 9–10 with `curl`; fix findings
+- [ ] T098 Backend gate: run `pnpm format:check; pnpm lint; pnpm typecheck; pnpm test; pnpm test:integration`, `pnpm dev`, `pnpm --filter lead-service seed`, then walk quickstart scenarios 1–3 and 9–10 with `curl`; fix findings
 
 **Checkpoint (backend complete)**: All backend tests green; API verified for US1–US6. **Frontend work starts only now.**
 

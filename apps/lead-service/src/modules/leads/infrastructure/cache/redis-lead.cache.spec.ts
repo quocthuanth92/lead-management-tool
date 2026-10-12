@@ -17,10 +17,24 @@ describe('RedisLeadCache', () => {
     const leadCache = new RedisLeadCache(cache, config);
     const query = { page: 1, q: 'customer' };
 
-    await leadCache.setList('user-id', query, { items: [] });
+    expect(await leadCache.getVersion('user-id')).toBe(3);
+    await leadCache.setList('user-id', 3, query, { items: [] });
     expect(cache.set).toHaveBeenCalledWith(leadListKey('user-id', 3, query), { items: [] }, 60);
-    await leadCache.setLead('lead-id', { userId: 'user-id' });
-    expect(cache.set).toHaveBeenCalledWith(leadKey('lead-id'), { userId: 'user-id' }, 300);
+    const record = {
+      id: 'lead-id',
+      userId: 'user-id',
+      customerName: 'Name',
+      phone: '15555550100',
+      email: null,
+      message: 'Message',
+      source: 'INTERNAL' as const,
+      label: 'UNLABELED' as const,
+      hasView: false,
+      createdAt: '2026-10-01T00:00:00.000Z',
+      lastUpdate: '2026-10-01T00:00:00.000Z'
+    };
+    await leadCache.setLead('lead-id', record);
+    expect(cache.set).toHaveBeenCalledWith(leadKey('lead-id'), record, 300);
   });
 
   it('invalidates lead detail and bumps only the requested user list version', async () => {
@@ -37,5 +51,13 @@ describe('RedisLeadCache', () => {
     await leadCache.invalidateUserLists('user-id');
     expect(cache.del).toHaveBeenCalledWith(leadKey('lead-id'));
     expect(cache.incr).toHaveBeenCalledWith(leadsVersionKey('user-id'));
+  });
+
+  it('treats a missing version as zero', async () => {
+    const cache = { getNumber: jest.fn().mockResolvedValue(null) } as unknown as CachePort;
+
+    await expect(
+      new RedisLeadCache(cache, {} as ConfigService).getVersion('user-id')
+    ).resolves.toBe(0);
   });
 });

@@ -10,7 +10,7 @@
     "seed": "pnpm build && node dist/src/cli/seed.js",
     "lint": "eslint \"src/**/*.ts\" \"test/**/*.ts\"",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "test": "pnpm jest --runInBand --config jest.config.cjs",
+    "test": "pnpm jest --runInBand --config jest.config.cjs --coverage",
     "test:integration": "pnpm jest --runInBand --config test/jest-integration.config.cjs"
   },
   "dependencies": {
@@ -26,6 +26,7 @@
     "@nestjs/throttler": "6.4.0",
     "class-transformer": "0.5.1",
     "class-validator": "0.14.2",
+    "helmet": "^8.3.0",
     "ioredis": "5.8.2",
     "mongoose": "8.19.1",
     "reflect-metadata": "0.2.2",
@@ -40,11 +41,13 @@
     "@types/jest": "30.0.0",
     "@types/node": "24.7.2",
     "@types/supertest": "6.0.3",
+    "ajv": "^8.20.0",
     "jest": "30.2.0",
     "supertest": "7.1.4",
     "testcontainers": "11.7.2",
     "ts-jest": "29.4.5",
     "ts-node": "10.9.2",
-    "typescript": "5.9.3"
+    "typescript": "5.9.3",
+    "yaml": "^2.9.1"
   }
 }

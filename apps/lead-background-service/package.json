@@ -7,9 +7,10 @@
     "build": "pnpm nest build",
     "dev": "pnpm nest start --watch",
     "start": "node dist/src/main.js",
-    "lint": "eslint \"src/**/*.ts\"",
+    "lint": "eslint \"src/**/*.ts\" \"test/**/*.ts\"",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "test": "jest --runInBand --config jest.config.cjs"
+    "test": "jest --runInBand --config jest.config.cjs",
+    "test:integration": "jest --runInBand --config test/jest-integration.config.cjs"
   },
   "dependencies": {
     "@lead/persistence": "workspace:*",

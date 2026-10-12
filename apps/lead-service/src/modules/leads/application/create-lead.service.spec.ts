@@ -14,6 +14,7 @@ describe('CreateLeadService', () => {
       })
     };
     const cache: jest.Mocked<LeadCachePort> = {
+      getVersion: jest.fn(),
       getList: jest.fn(),
       setList: jest.fn(),
       getLead: jest.fn(),
@@ -46,6 +47,7 @@ describe('CreateLeadService', () => {
       ingest: jest.fn().mockResolvedValue({ duplicate: false, id: 'lead-id' })
     } as unknown as LeadIngestionPort;
     const cache: jest.Mocked<LeadCachePort> = {
+      getVersion: jest.fn(),
       getList: jest.fn(),
       setList: jest.fn(),
       getLead: jest.fn(),

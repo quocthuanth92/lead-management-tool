@@ -9,7 +9,7 @@ services:
       - mongo-data:/data/db
       - ./docker/mongo/init-replica.sh:/docker-entrypoint-initdb.d/init-replica.sh:ro
     healthcheck:
-      test: ['CMD-SHELL', 'mongosh --quiet --eval "db.hello().isWritablePrimary" | grep true']
+      test: ["CMD-SHELL", "mongosh --quiet --eval 'if (!db.hello().isWritablePrimary) { quit(1); }'"]
       interval: 10s
       timeout: 5s
       retries: 15
@@ -17,7 +17,7 @@ services:
 
   redis:
     container_name: redis
-    image: redis/redis-stack:latest
+    image: redis/redis-stack-server:latest
     ports:
       - '6379:6379'
     healthcheck:
@@ -75,6 +75,7 @@ services:
         condition: service_healthy
     ports:
       - '3001:3001'
+    restart: always
     healthcheck:
       test: ['CMD-SHELL', 'wget -qO- http://localhost:3001/api/v1/health >/dev/null 2>&1']
       interval: 10s
@@ -103,6 +104,7 @@ services:
         condition: service_healthy
     ports:
       - '3002:3002'
+    restart: always
     healthcheck:
       test: ['CMD-SHELL', 'wget -qO- http://localhost:3002/health >/dev/null 2>&1']
       interval: 10s
@@ -125,6 +127,7 @@ services:
         condition: service_healthy
     ports:
       - '3000:3000'
+    restart: always
     healthcheck:
       test: ['CMD-SHELL', 'wget -qO- http://localhost:3000/api/health >/dev/null 2>&1']
       interval: 10s
@@ -148,6 +151,7 @@ services:
         condition: service_healthy
       lead-service:
         condition: service_healthy
+    restart: always
 
 volumes:
   mongo-data:

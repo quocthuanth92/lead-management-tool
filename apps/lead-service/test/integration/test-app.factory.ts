@@ -7,9 +7,13 @@ import { JwtModule } from '@nestjs/jwt';
 import Redis from 'ioredis';
 import { Model } from 'mongoose';
 import request from 'supertest';
+import helmet from 'helmet';
 import {
+  buildSearchFields,
+  leadsVersionKey,
   LeadWriter,
   MongoLeadWriterStore,
+  normalizePhone,
   PersistenceModels,
   UserAttrs,
   LeadAttrs,
@@ -23,7 +27,10 @@ import { CurrentUser } from '../../src/common/decorators/current-user.decorator'
 import { AuthenticatedUser, JwtAuthGuard } from '../../src/common/guards/jwt-auth.guard';
 import { ScryptPasswordHasher } from '../../src/modules/auth/infrastructure/scrypt-password-hasher';
 import { REDIS_CLIENT } from '../../src/core/redis/redis.module';
-import { CreateLeadRequest } from '@lead/shared-contracts';
+import { CreateLeadRequest, LeadLabel } from '@lead/shared-contracts';
+
+// RediSearch (the `search` module) is required for the inbox and search indexes.
+const REDIS_IMAGE = 'redis/redis-stack-server:latest';
 
 @Controller('__test')
 @UseGuards(JwtAuthGuard)
@@ -44,13 +51,26 @@ export interface RunningIntegrationApp {
   ): Promise<string>;
   seedLead(overrides?: Partial<CreateLeadRequest> & { userId?: string }): Promise<string>;
   seedActivity(leadId: string, userId: string, content?: string): Promise<string>;
+  insertLead(
+    overrides: Partial<{
+      userId: string;
+      fullName: string;
+      phone: string;
+      email: string;
+      message: string;
+      label: LeadLabel;
+      hasView: boolean;
+      createdAt: Date;
+      updatedAt: Date;
+    }>
+  ): Promise<string>;
   stopRedis(): Promise<void>;
   startRedis(): Promise<void>;
 }
 
 export async function createIntegrationApp(): Promise<RunningIntegrationApp> {
   const mongoContainer = await new GenericContainer('mongo:7').withExposedPorts(27017).start();
-  let redisContainer = await new GenericContainer('redis:7-alpine').withExposedPorts(6379).start();
+  let redisContainer = await new GenericContainer(REDIS_IMAGE).withExposedPorts(6379).start();
 
   process.env.NODE_ENV = 'test';
   process.env.PORT = '3001';
@@ -71,6 +91,7 @@ export async function createIntegrationApp(): Promise<RunningIntegrationApp> {
   }).compile();
 
   const app = moduleRef.createNestApplication();
+  app.use(helmet());
   app.setGlobalPrefix(API_PREFIX);
   app.useGlobalPipes(
     new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true, transform: true })
@@ -137,12 +158,41 @@ export async function createIntegrationApp(): Promise<RunningIntegrationApp> {
     async seedActivity(leadId, userId, content = 'Seed activity') {
       const activity = await activityModel.create({
         leadId,
-        authorUserId: userId,
+        userId,
+        authorName: 'Seed Author',
         type: 'NOTE',
         content,
         createdAt: new Date()
       });
       return String(activity._id);
+    },
+    async insertLead(overrides = {}) {
+      const fullName = overrides.fullName ?? 'Inserted Lead';
+      const phone = normalizePhone(overrides.phone ?? `+1555${randomInt(1_000_000, 9_999_999)}`);
+      if (!phone) {
+        throw new Error('Test lead phone must be valid');
+      }
+      const now = new Date();
+      const lead = await leadModel.create({
+        assignmentStatus: overrides.userId ? 'ASSIGNED' : 'UNASSIGNED',
+        ...(overrides.userId ? { userId: overrides.userId } : {}),
+        fullName,
+        phone,
+        ...(overrides.email ? { email: overrides.email } : {}),
+        message: overrides.message ?? 'Inserted message',
+        source: 'INTERNAL',
+        label: overrides.label ?? 'UNLABELED',
+        hasView: overrides.hasView ?? false,
+        ...buildSearchFields({ fullName, email: overrides.email, phone }),
+        schemaVersion: 1,
+        createdAt: overrides.createdAt ?? now,
+        updatedAt: overrides.updatedAt ?? overrides.createdAt ?? now
+      });
+      if (overrides.userId) {
+        // Writes made through the app invalidate the user's lists; mirror that here.
+        await redisClient.incr(leadsVersionKey(overrides.userId));
+      }
+      return String(lead._id);
     },
     async stopRedis() {
       if (!redisStopped) {
@@ -153,9 +203,7 @@ export async function createIntegrationApp(): Promise<RunningIntegrationApp> {
     },
     async startRedis() {
       if (redisStopped) {
-        redisContainer = await new GenericContainer('redis:7-alpine')
-          .withExposedPorts(6379)
-          .start();
+        redisContainer = await new GenericContainer(REDIS_IMAGE).withExposedPorts(6379).start();
         redisClient.options.host = redisContainer.getHost();
         redisClient.options.port = redisContainer.getMappedPort(6379);
         await redisClient.connect();

@@ -27,15 +27,16 @@ pnpm test:integration
 Expected: Testcontainers start MongoDB/Redis/Kafka; TC-01 … TC-19 pass; index/explain test confirms the
 inbox query uses `{ userId, hasView, updatedAt }`.
 
-## 3. Run the full stack
+## 3. Run the applications with Turbo
 
 ```powershell
-docker compose up --build --wait
-docker compose exec lead-service node dist/cli/seed.js
+docker compose up --wait mongo redis kafka
+pnpm --filter @lead/lead-service seed
+pnpm dev
 ```
 
-Expected: all services healthy; seed prints the demo salesperson emails (passwords come from
-`SEED_SALESPERSON_PASSWORD`).
+Expected: the lead service, background service, and web app run through Turbo; seed prints the demo
+salesperson emails (passwords come from `SEED_SALESPERSON_PASSWORD`).
 
 ## 4. Manual scenarios
 
@@ -63,5 +64,4 @@ Expected: Cucumber features under `end-to-end/features/leads/` pass; reports wri
 
 ## Done when
 
-- Steps 1, 2, and 5 are green; steps 3–4 behave as listed; no PII appears in `docker compose logs`
-  for the three apps.
+- Steps 1, 2, and 5 are green; steps 3–4 behave as listed; no PII appears in the three apps' logs.

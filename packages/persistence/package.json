@@ -9,7 +9,7 @@
     "build": "tsc -p tsconfig.json",
     "lint": "eslint \"src/**/*.ts\" \"test/**/*.ts\"",
     "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.test.json",
-    "test": "jest --runInBand --config jest.config.cjs",
+    "test": "jest --runInBand --config jest.config.cjs --coverage",
     "test:integration": "jest --runInBand --config jest.integration.config.cjs"
   },
   "dependencies": {

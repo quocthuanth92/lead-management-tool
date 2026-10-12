@@ -8,4 +8,5 @@ export * from './leads/lead-label';
 export * from './leads/lead-source';
 export * from './leads/lead.requests';
 export * from './leads/lead.responses';
+export * from './leads/lead.types';
 export * from './leads/limits';
