@@ -1,3 +1,4 @@
+name: lead-management-tool
 services:
   mongo:
     container_name: mongo
