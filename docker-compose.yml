@@ -8,10 +8,14 @@ services:
       - '27017:27017'
     volumes:
       - mongo-data:/data/db
-      - ./docker/mongo/init-replica.sh:/docker-entrypoint-initdb.d/init-replica.sh:ro
+      - ./docker/mongo/init-replica.sh:/scripts/init-replica.sh:ro
+    # The replica set is initiated here, against the real mongod, because the entrypoint's init-script phase only listens on localhost.
     healthcheck:
       test:
-        ['CMD-SHELL', "mongosh --quiet --eval 'if (!db.hello().isWritablePrimary) { quit(1); }'"]
+        [
+          'CMD-SHELL',
+          "sh /scripts/init-replica.sh && mongosh --quiet --eval 'if (!db.hello().isWritablePrimary) { quit(1); }'"
+        ]
       interval: 10s
       timeout: 5s
       retries: 15

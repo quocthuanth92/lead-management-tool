@@ -59,7 +59,7 @@ jobs:
         run: pnpm test
 
   e2e:
-    if: github.head_ref == 'main'
+    if: github.ref == 'refs/heads/main'
     needs: lint-and-unit-tests
     runs-on: ubuntu-latest
     timeout-minutes: 45

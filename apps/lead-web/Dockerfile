@@ -18,6 +18,8 @@ RUN pnpm --filter @lead/lead-web... run build
 FROM base AS runtime
 WORKDIR /app
 ENV PORT=3000
+# Next.js standalone binds to the container hostname by default, which makes localhost healthchecks fail.
+ENV HOSTNAME=0.0.0.0
 ENV UV_THREADPOOL_SIZE=4
 ENV NODE_OPTIONS=--max-old-space-size=512
 RUN addgroup -S nextjs && adduser -S nodeuser -G nextjs
