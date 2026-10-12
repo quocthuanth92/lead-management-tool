@@ -107,7 +107,9 @@ export async function locateLeadOwner(
         const account = getSalespersonCredentials(label);
         const accessToken = await getAccessToken(account);
         const result = await searchLeads(api, accessToken, { q: token });
-        const item = result.body.items?.find((candidate) => candidate.customerName?.includes(token) === true);
+        const item = result.body.items?.find(
+          (candidate) => candidate.customerName?.includes(token) === true
+        );
         if (item) {
           return { owner: account, item };
         }

@@ -26,7 +26,9 @@
     "verify:compose": "node scripts/verify-compose-health.mjs",
     "lead-service:dev": "turbo run dev --filter=@lead/lead-service",
     "lead-background-service:dev": "turbo run dev --filter=@lead/lead-background-service",
-    "lead-web:dev": "turbo run dev --filter=@lead/lead-web"
+    "lead-web:dev": "turbo run dev --filter=@lead/lead-web",
+    "prettier": "prettier --ignore-unknown --write \"{apps,end-to-end,packages,scripts,.github/workflows,specs}/**/*.{ts,tsx,js,mjs,cjs,json,md,yml,yaml}\" \"{package.json,pnpm-workspace.yaml,turbo.json,tsconfig.base.json,README.md,docker-compose.yml,.env.example,.prettierrc.json,.gitignore,.dockerignore}\"",
+    "prettier:check": "prettier --ignore-unknown --check \"{apps,end-to-end,packages,scripts,.github/workflows,specs}/**/*.{ts,tsx,js,mjs,cjs,json,md,yml,yaml}\" \"{package.json,pnpm-workspace.yaml,turbo.json,tsconfig.base.json,README.md,docker-compose.yml,.env.example,.prettierrc.json,.gitignore,.dockerignore}\""
   },
   "devDependencies": {
     "@eslint/js": "9.38.0",
