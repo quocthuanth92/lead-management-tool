@@ -149,19 +149,19 @@
 
 ### Tests (write first)
 
-- [ ] T050 [P] [US6] Unit tests `apps/lead-background-service/src/modules/lead-consumer/application/process-lead-event.service.spec.ts` with fake ports: valid → ingest (`EXTERNAL`, `externalEventId = eventId`) → invalidate; duplicate → acknowledged with no invalidation and no error; invalid payload → DLQ immediately with reason `INVALID_PAYLOAD` and no retry; transient failure → retried with exponential backoff (fake timers) then DLQ `PROCESSING_FAILED` after `CONSUMER_RETRY_ATTEMPTS`; success on a later attempt; DLQ publish failure rethrows; Redis invalidation failure ignored; logs contain only ids/counts (**TC-18**)
-- [ ] T051 [P] [US6] Unit tests `apps/lead-background-service/src/modules/lead-assignment/application/assign-held-leads.service.spec.ts`: oldest first up to `ASSIGN_HELD_LEADS_BATCH_SIZE`; lost race (conditional update matches nothing) is skipped; no salespeople → no-op; invalidates the assignee's cache
-- [ ] T052 [P] [US6] Handler test `apps/lead-background-service/src/modules/lead-consumer/interface/kafka/lead-consumer.handler.spec.ts`: thin delegation, passes message key/value/topic/partition/offset, topic comes from validated config
-- [ ] T053 [P] [US6] Integration tests (Testcontainers MongoDB + Redis + Kafka) `apps/lead-background-service/test/integration/consumer.int-spec.ts` — **TC-12**: valid event → one `EXTERNAL` lead; same event twice → exactly one lead; two salespeople → round-robin; **TC-12b**: invalid payload and non-JSON poison message → no lead, one DLQ envelope each, consumer still processes the next message; **TC-12c**: Mongo unavailable then available → retried then success (or DLQ after attempts); **TC-12d**: no salespeople, event stored `UNASSIGNED`, then a salesperson is created → assigned within one scheduler interval; add `test:integration` script and `test/jest-integration.config.cjs` to `apps/lead-background-service/`
+- [x] T050 [P] [US6] Unit tests `apps/lead-background-service/src/modules/lead-consumer/application/process-lead-event.service.spec.ts` with fake ports: valid → ingest (`EXTERNAL`, `externalEventId = eventId`) → invalidate; duplicate → acknowledged with no invalidation and no error; invalid payload → DLQ immediately with reason `INVALID_PAYLOAD` and no retry; transient failure → retried with exponential backoff (fake timers) then DLQ `PROCESSING_FAILED` after `CONSUMER_RETRY_ATTEMPTS`; success on a later attempt; DLQ publish failure rethrows; Redis invalidation failure ignored; logs contain only ids/counts (**TC-18**)
+- [x] T051 [P] [US6] Unit tests `apps/lead-background-service/src/modules/lead-assignment/application/assign-held-leads.service.spec.ts`: oldest first up to `ASSIGN_HELD_LEADS_BATCH_SIZE`; lost race (conditional update matches nothing) is skipped; no salespeople → no-op; invalidates the assignee's cache
+- [x] T052 [P] [US6] Handler test `apps/lead-background-service/src/modules/lead-consumer/interface/kafka/lead-consumer.handler.spec.ts`: thin delegation, passes message key/value/topic/partition/offset, topic comes from validated config
+- [x] T053 [P] [US6] Integration tests (Testcontainers MongoDB + Redis + Kafka) `apps/lead-background-service/test/integration/consumer.int-spec.ts` — **TC-12**: valid event → one `EXTERNAL` lead; same event twice → exactly one lead; two salespeople → round-robin; **TC-12b**: invalid payload and non-JSON poison message → no lead, one DLQ envelope each, consumer still processes the next message; **TC-12c**: Mongo unavailable then available → retried then success (or DLQ after attempts); **TC-12d**: no salespeople, event stored `UNASSIGNED`, then a salesperson is created → assigned within one scheduler interval; add `test:integration` script and `test/jest-integration.config.cjs` to `apps/lead-background-service/`
 
 ### Implementation
 
-- [ ] T054 [P] [US6] Define ports in `apps/lead-background-service/src/modules/lead-consumer/domain/ports/`: `lead-ingestion.port.ts`, `dead-letter.port.ts`, `lead-cache-invalidator.port.ts` (replace the placeholder `lead-event.port.ts`)
-- [ ] T055 [P] [US6] Implement infrastructure adapters in `apps/lead-background-service/src/modules/lead-consumer/infrastructure/`: `mongo-lead-ingestion.adapter.ts` (uses `@lead/persistence` `LeadWriter`), `kafka-dead-letter.producer.ts` (kafkajs producer publishing a `DeadLetterEnvelope` to `KAFKA_LEADS_DLQ_TOPIC`), `redis-cache-invalidator.adapter.ts` (`DEL lead:{id}`, `INCR leads:version:{userId}`, failures logged and swallowed), `redis.module.ts`
-- [ ] T056 [US6] Implement `apps/lead-background-service/src/modules/lead-consumer/application/process-lead-event.service.ts` and `retry-policy.ts` (reads attempts/delay from config; replaces `infrastructure/retry/consumer-retry.policy.ts` constants and the placeholder `lead-consumer.service.ts`)
-- [ ] T057 [US6] Rewrite `apps/lead-background-service/src/modules/lead-consumer/interface/kafka/lead-consumer.handler.ts` to read the raw message (key, value, topic, partition, offset), call `ProcessLeadEvent`, and rely on offset commit only after success/ack/DLQ (no `Date.now()`-derived ids); take the topic from `ConfigService` instead of `process.env` at decoration time; update `lead-consumer.module.ts`
-- [ ] T058 [US6] Implement `apps/lead-background-service/src/modules/lead-assignment/` — `application/assign-held-leads.service.ts`, `infrastructure/held-leads-scheduler.ts` (`@nestjs/schedule` interval from `ASSIGN_HELD_LEADS_INTERVAL_SECONDS`), `lead-assignment.module.ts`; register `ScheduleModule.forRoot()` and the modules in `apps/lead-background-service/src/app.module.ts`; extend the health service to report `redis`
-- [ ] T059 [US6] Run T050–T053 until green; verify with `docker compose up --build --wait` that the service consumes a manually published event (quickstart scenarios 2–3)
+- [x] T054 [P] [US6] Define ports in `apps/lead-background-service/src/modules/lead-consumer/domain/ports/`: `lead-ingestion.port.ts`, `dead-letter.port.ts`, `lead-cache-invalidator.port.ts` (replace the placeholder `lead-event.port.ts`)
+- [x] T055 [P] [US6] Implement infrastructure adapters in `apps/lead-background-service/src/modules/lead-consumer/infrastructure/`: `mongo-lead-ingestion.adapter.ts` (uses `@lead/persistence` `LeadWriter`), `kafka-dead-letter.producer.ts` (kafkajs producer publishing a `DeadLetterEnvelope` to `KAFKA_LEADS_DLQ_TOPIC`), `redis-cache-invalidator.adapter.ts` (`DEL lead:{id}`, `INCR leads:version:{userId}`, failures logged and swallowed), `redis.module.ts`
+- [x] T056 [US6] Implement `apps/lead-background-service/src/modules/lead-consumer/application/process-lead-event.service.ts` and `retry-policy.ts` (reads attempts/delay from config; replaces `infrastructure/retry/consumer-retry.policy.ts` constants and the placeholder `lead-consumer.service.ts`)
+- [x] T057 [US6] Rewrite `apps/lead-background-service/src/modules/lead-consumer/interface/kafka/lead-consumer.handler.ts` to read the raw message (key, value, topic, partition, offset), call `ProcessLeadEvent`, and rely on offset commit only after success/ack/DLQ (no `Date.now()`-derived ids); take the topic from `ConfigService` instead of `process.env` at decoration time; update `lead-consumer.module.ts`
+- [x] T058 [US6] Implement `apps/lead-background-service/src/modules/lead-assignment/` — `application/assign-held-leads.service.ts`, `infrastructure/held-leads-scheduler.ts` (`@nestjs/schedule` interval from `ASSIGN_HELD_LEADS_INTERVAL_SECONDS`), `lead-assignment.module.ts`; register `ScheduleModule.forRoot()` and the modules in `apps/lead-background-service/src/app.module.ts`; extend the health service to report `redis`
+- [x] T059 [US6] Run T050–T053 until green; start MongoDB, Redis, and Kafka with `docker compose up --wait mongo redis kafka`, then run the applications with `pnpm dev` and verify the background service consumes a manually published event (quickstart scenarios 2–3)
 
 **Checkpoint**: Both ingestion sources work; duplicates and invalid events behave per FR-029/FR-030.
 
@@ -288,7 +288,7 @@
 - [x] T094 [P] Integration tests `apps/lead-service/test/integration/resilience.e2e-spec.ts` — **TC-14**: stop the Redis container → all endpoints still correct and `/api/v1/health` reports redis down; restart → caching resumes
 - [x] T095 [P] Integration tests `apps/lead-service/test/integration/security-logging.e2e-spec.ts` — **TC-18**: capture Nest logger output during ingest/list/search/details/label/activity and assert it contains no name, phone, email, message, or note content; **TC-15** gaps: tampered token, `x-api-key` on JWT routes, security headers present
 - [x] T096 [P] Contract-drift check: add `apps/lead-service/test/integration/openapi-contract.e2e-spec.ts` that validates real responses of every endpoint against `specs/003-lead-management/contracts/lead-service.openapi.yaml` (response schemas, status codes); fix code or contract until they agree
-- [ ] T097 Enforce coverage thresholds: in `apps/lead-service/jest.config.cjs`, `apps/lead-background-service/jest.config.cjs`, and `packages/persistence/jest.config.cjs` set `coverageThreshold` ≥ 90 % lines/branches scoped to `modules/**/domain/**`, `modules/**/application/**` (and `src/ingestion/**`, `src/normalization/**` for persistence); add `--coverage` to their `test` scripts
+- [x] T097 Enforce coverage thresholds: in `apps/lead-service/jest.config.cjs`, `apps/lead-background-service/jest.config.cjs`, and `packages/persistence/jest.config.cjs` set `coverageThreshold` ≥ 90 % lines/branches scoped to `modules/**/domain/**`, `modules/**/application/**` (and `src/ingestion/**`, `src/normalization/**` for persistence); add `--coverage` to their `test` scripts
 - [ ] T098 Backend gate: run `pnpm format:check; pnpm lint; pnpm typecheck; pnpm test; pnpm test:integration`, `pnpm dev`, `pnpm --filter lead-service seed`, then walk quickstart scenarios 1–3 and 9–10 with `curl`; fix findings
 
 **Checkpoint (backend complete)**: All backend tests green; API verified for US1–US6. **Frontend work starts only now.**
@@ -301,19 +301,19 @@
 
 ### Tests (write first)
 
-- [ ] T099 [P] BFF proxy tests `apps/lead-web/src/app/api/lead-service/[...path]/route.test.ts`: allowlist (only the nine documented API routes/methods; unknown path or method → 404/405; path traversal `..`, encoded slashes rejected); forwards only `content-type`/`accept`; strips `cookie`/`host`; adds `Authorization: Bearer <cookie value>`; no cookie → 401 in the shared error shape; never echoes the token; body size capped
-- [ ] T100 [P] Login/logout route tests `apps/lead-web/src/app/api/auth/auth-routes.test.ts`: success sets an httpOnly, `SameSite=Lax` cookie (`Secure` per `SESSION_COOKIE_SECURE`) and the response body never contains the token; failure returns the upstream error shape; logout clears the cookie
-- [ ] T101 [P] Component tests for login `apps/lead-web/src/app/(auth)/login/login-form.test.tsx` (inline "Invalid email or password", disabled while submitting, redirect to `/leads`) and `proxy.test.ts` (unauthenticated → redirect to `/login`, `/` → `/leads`, API routes not redirected)
+- [x] T099 [P] BFF proxy tests `apps/lead-web/src/app/api/lead-service/[...path]/route.test.ts`: allowlist (only the nine documented API routes/methods; unknown path or method → 404/405; path traversal `..`, encoded slashes rejected); forwards only `content-type`/`accept`; strips `cookie`/`host`; adds `Authorization: Bearer <cookie value>`; no cookie → 401 in the shared error shape; never echoes the token; body size capped
+- [x] T100 [P] Login/logout route tests `apps/lead-web/src/app/api/auth/auth-routes.test.ts`: success sets an httpOnly, `SameSite=Lax` cookie (`Secure` per `SESSION_COOKIE_SECURE`) and the response body never contains the token; failure returns the upstream error shape; logout clears the cookie
+- [x] T101 [P] Component tests for login `apps/lead-web/src/app/(auth)/login/login-form.test.tsx` (inline "Invalid email or password", disabled while submitting, redirect to `/leads`) and `proxy.test.ts` (unauthenticated → redirect to `/login`, `/` → `/leads`, API routes not redirected)
 
 ### Implementation
 
-- [ ] T102 Rewrite `apps/lead-web/src/app/api/lead-service/[...path]/route.ts` as the hardened allowlist proxy (GET/POST/PUT only for: `leads`, `leads/search`, `leads/:id`, `leads/:id/label`, `leads/:id/activities`), using `getAccessToken()` from `apps/lead-web/src/lib/server/session.ts` and `LEAD_SERVICE_URL`; extract allowlist matching to `apps/lead-web/src/lib/server/proxy-allowlist.ts`
-- [ ] T103 [P] Implement `apps/lead-web/src/app/api/auth/login/route.ts` and `apps/lead-web/src/app/api/auth/logout/route.ts` (thin; set/clear cookie via `session.ts` helpers using `SESSION_COOKIE_NAME`, `SESSION_COOKIE_SECURE`)
-- [ ] T104 [P] Update `apps/lead-web/src/proxy.ts` (Next 16 interception; verified filename) to redirect unauthenticated page requests to `/login` and `/` to `/leads`
-- [ ] T105 [P] Add shadcn/base-ui components via the CLI into `apps/lead-web/src/components/ui/`: `input`, `select`, `badge`, `table`, `card`, `textarea`, `skeleton`, `sonner` (toast), `pagination`, `alert`; do not add demo files
-- [ ] T106 [P] Add `apps/lead-web/src/lib/query/keys.ts` (`leads.list(params)`, `leads.details(id)`, `leads.activities(id)`), `apps/lead-web/src/lib/api/client.ts` (browser-side fetch wrapper to `/api/lead-service/*` returning typed `@lead/shared-contracts` shapes and throwing `ErrorResponse`), and `apps/lead-web/src/hooks/useDebounce.ts`
-- [ ] T107 Implement `apps/lead-web/src/app/(auth)/login/page.tsx` + `login-form.tsx` (client form; zod validation; calls `/api/auth/login`) per ui-layout.md
-- [ ] T108 Implement the authenticated shell `apps/lead-web/src/app/(app)/layout.tsx` (header with user name and Sign out) and `apps/lead-web/src/components/leads/LabelBadge.tsx` (UNLABELED neutral, POTENTIAL green, SPAM red; text always shown); make `apps/lead-web/src/app/page.tsx` redirect to `/leads`
+- [x] T102 Rewrite `apps/lead-web/src/app/api/lead-service/[...path]/route.ts` as the hardened allowlist proxy (GET/POST/PUT only for: `leads`, `leads/search`, `leads/:id`, `leads/:id/label`, `leads/:id/activities`), using `getAccessToken()` from `apps/lead-web/src/lib/server/session.ts` and `LEAD_SERVICE_URL`; extract allowlist matching to `apps/lead-web/src/lib/server/proxy-allowlist.ts`
+- [x] T103 [P] Implement `apps/lead-web/src/app/api/auth/login/route.ts` and `apps/lead-web/src/app/api/auth/logout/route.ts` (thin; set/clear cookie via `session.ts` helpers using `SESSION_COOKIE_NAME`, `SESSION_COOKIE_SECURE`)
+- [x] T104 [P] Update `apps/lead-web/src/proxy.ts` (Next 16 interception; verified filename) to redirect unauthenticated page requests to `/login` and `/` to `/leads`
+- [x] T105 [P] Add shadcn/base-ui components via the CLI into `apps/lead-web/src/components/ui/`: `input`, `select`, `badge`, `table`, `card`, `textarea`, `skeleton`, `sonner` (toast), `pagination`, `alert`; do not add demo files
+- [x] T106 [P] Add `apps/lead-web/src/lib/query/keys.ts` (`leads.list(params)`, `leads.details(id)`, `leads.activities(id)`), `apps/lead-web/src/lib/api/client.ts` (browser-side fetch wrapper to `/api/lead-service/*` returning typed `@lead/shared-contracts` shapes and throwing `ErrorResponse`), and `apps/lead-web/src/hooks/useDebounce.ts`
+- [x] T107 Implement `apps/lead-web/src/app/(auth)/login/page.tsx` + `login-form.tsx` (client form; zod validation; calls `/api/auth/login`) per ui-layout.md
+- [x] T108 Implement the authenticated shell `apps/lead-web/src/app/(app)/layout.tsx` (header with user name and Sign out) and `apps/lead-web/src/components/leads/LabelBadge.tsx` (UNLABELED neutral, POTENTIAL green, SPAM red; text always shown); make `apps/lead-web/src/app/page.tsx` redirect to `/leads`
 
 **Checkpoint**: Can sign in and out through the browser; unauthenticated access redirects; proxy tests green.
 
@@ -327,16 +327,16 @@
 
 ### Tests (write first)
 
-- [ ] T109 [P] [US1] Tests `apps/lead-web/src/hooks/useInboxParams.test.ts`: parses/serializes `?q&label&from&to&page&limit`; defaults to last 6 months and page 1/limit 20; resets `page` when any filter changes; clamps `limit` to 200; ignores invalid values
-- [ ] T110 [P] [US1] Component tests `apps/lead-web/src/components/leads/LeadTable.test.tsx` (unread rows bold with `Unread` sr-only text, row links to `/leads/[id]`, empty and error states) and `Pagination.test.tsx` (boundaries, total text, page-size change)
-- [ ] T111 [P] [US5] Component tests `apps/lead-web/src/components/leads/InboxToolbar.test.tsx`: 300 ms debounce; fires only for 2–100 chars with a hint below 2; label filter; invalid date range (from > to) shows an inline error and keeps previous results; "Last 6 months" reset; scope chip visible when a search/filter is active
+- [x] T109 [P] [US1] Tests `apps/lead-web/src/hooks/useInboxParams.test.ts`: parses/serializes `?q&label&from&to&page&limit`; defaults to last 6 months and page 1/limit 20; resets `page` when any filter changes; clamps `limit` to 200; ignores invalid values
+- [x] T110 [P] [US1] Component tests `apps/lead-web/src/components/leads/LeadTable.test.tsx` (unread rows bold with `Unread` sr-only text, row links to `/leads/[id]`, empty and error states) and `Pagination.test.tsx` (boundaries, total text, page-size change)
+- [x] T111 [P] [US5] Component tests `apps/lead-web/src/components/leads/InboxToolbar.test.tsx`: 300 ms debounce; fires only for 2–100 chars with a hint below 2; label filter; invalid date range (from > to) shows an inline error and keeps previous results; "Last 6 months" reset; scope chip visible when a search/filter is active
 
 ### Implementation
 
-- [ ] T112 [P] [US1] Implement `apps/lead-web/src/hooks/useInboxParams.ts` (URL as source of truth via `useSearchParams`/`useRouter`) and `apps/lead-web/src/hooks/useLeads.ts` (React Query; uses `/leads` when no `q`/`label`, otherwise `/leads/search`; keeps previous data while refetching)
-- [ ] T113 [P] [US1] Implement `apps/lead-web/src/components/leads/LeadTable.tsx`, `LeadRow.tsx`, and `Pagination.tsx` (presentational; "Showing 1–20 of 248", rows-per-page 20/50/100/200)
-- [ ] T114 [P] [US5] Implement `apps/lead-web/src/components/leads/InboxToolbar.tsx`, `DateRangeFilter.tsx` (native `type="date"` inputs inside the shadcn `Input`), and `LabelFilter.tsx` (All, UNLABELED, POTENTIAL, SPAM from `LEAD_LABELS`)
-- [ ] T115 [US1] Implement `apps/lead-web/src/app/(app)/leads/page.tsx` (server component mounting a client `InboxView` in `apps/lead-web/src/components/leads/InboxView.tsx`) with loading skeleton, empty states ("No leads in this period. Try a wider date range." / "No leads match. Clear search"), error alert with Retry, refetch on window focus; run T109–T111 until green
+- [x] T112 [P] [US1] Implement `apps/lead-web/src/hooks/useInboxParams.ts` (URL as source of truth via `useSearchParams`/`useRouter`) and `apps/lead-web/src/hooks/useLeads.ts` (React Query; uses `/leads` when no `q`/`label`, otherwise `/leads/search`; keeps previous data while refetching)
+- [x] T113 [P] [US1] Implement `apps/lead-web/src/components/leads/LeadTable.tsx`, `LeadRow.tsx`, and `Pagination.tsx` (presentational; "Showing 1–20 of 248", rows-per-page 20/50/100/200)
+- [x] T114 [P] [US5] Implement `apps/lead-web/src/components/leads/InboxToolbar.tsx`, `DateRangeFilter.tsx` (native `type="date"` inputs inside the shadcn `Input`), and `LabelFilter.tsx` (All, UNLABELED, POTENTIAL, SPAM from `LEAD_LABELS`)
+- [x] T115 [US1] Implement `apps/lead-web/src/app/(app)/leads/page.tsx` (server component mounting a client `InboxView` in `apps/lead-web/src/components/leads/InboxView.tsx`) with loading skeleton, empty states ("No leads in this period. Try a wider date range." / "No leads match. Clear search"), error alert with Retry, refetch on window focus; run T109–T111 until green
 
 **Checkpoint**: Inbox, search, label filter, date range, and pagination work in the browser against the real backend.
 
@@ -350,17 +350,17 @@
 
 ### Tests (write first)
 
-- [ ] T116 [P] [US4] Tests `apps/lead-web/src/components/leads/LabelSelect.test.tsx`: shows exactly one value; optimistic update; rollback + toast on failure; disabled while saving
-- [ ] T117 [P] [US3] Tests `apps/lead-web/src/components/leads/ActivityComposer.test.tsx` (Add disabled when blank or whitespace; counter turns red above 2000; Ctrl+Enter submits; clears on success; keeps text and shows an error on failure) and `ActivityTimeline.test.tsx` (renders in the order provided, newest first; **no edit/delete controls rendered**; "Load more" requests the next page)
-- [ ] T118 [P] [US2] Tests `apps/lead-web/src/components/leads/LeadDetailsCard.test.tsx` (all fields incl. source label "Website API"/"External event", 404 state "Lead not found" with Back to inbox, error state) and `apps/lead-web/src/hooks/useLeadDetails.test.tsx` (opening invalidates inbox list queries so the lead shows as read)
+- [x] T116 [P] [US4] Tests `apps/lead-web/src/components/leads/LabelSelect.test.tsx`: shows exactly one value; optimistic update; rollback + toast on failure; disabled while saving
+- [x] T117 [P] [US3] Tests `apps/lead-web/src/components/leads/ActivityComposer.test.tsx` (Add disabled when blank or whitespace; counter turns red above 2000; Ctrl+Enter submits; clears on success; keeps text and shows an error on failure) and `ActivityTimeline.test.tsx` (renders in the order provided, newest first; **no edit/delete controls rendered**; "Load more" requests the next page)
+- [x] T118 [P] [US2] Tests `apps/lead-web/src/components/leads/LeadDetailsCard.test.tsx` (all fields incl. source label "Website API"/"External event", 404 state "Lead not found" with Back to inbox, error state) and `apps/lead-web/src/hooks/useLeadDetails.test.tsx` (opening invalidates inbox list queries so the lead shows as read)
 
 ### Implementation
 
-- [ ] T119 [P] [US2] Implement `apps/lead-web/src/hooks/useLeadDetails.ts` and `useLeadActivities.ts` (React Query; details fetch invalidates `leads.list` keys; 404 surfaced as a typed state)
-- [ ] T120 [P] [US4] Implement `apps/lead-web/src/hooks/useSetLabel.ts` (optimistic mutation, invalidates list + details) and `apps/lead-web/src/components/leads/LabelSelect.tsx`
-- [ ] T121 [P] [US3] Implement `apps/lead-web/src/hooks/useAddActivity.ts` (prepends the new entry to the cached first page, invalidates list), `apps/lead-web/src/components/leads/ActivityComposer.tsx` (type select defaulting to Note, textarea, counter, `NOTE_MAX` from shared-contracts), and `ActivityTimeline.tsx` (type icon, author, relative time with absolute `title`, "Load more")
-- [ ] T122 [US2] Implement `apps/lead-web/src/components/leads/LeadDetailsCard.tsx` and `apps/lead-web/src/app/(app)/leads/[id]/page.tsx` (server component awaiting `params`, mounting a client `LeadDetailsView` in `apps/lead-web/src/components/leads/LeadDetailsView.tsx`; two columns ≥ 1024 px, stacked below; "Back to inbox" preserves the inbox query string); run T116–T118 until green
-- [ ] T123 [US2] Verify no token or API key is present in client bundles: add `apps/lead-web/src/app/bundle-secrets.test.ts` (or a build-output grep step) asserting `LEAD_SERVICE_URL`, `LEAD_SOURCE_API_KEY`, and `JWT` strings are absent from `.next/static`; fix any leak
+- [x] T119 [P] [US2] Implement `apps/lead-web/src/hooks/useLeadDetails.ts` and `useLeadActivities.ts` (React Query; details fetch invalidates `leads.list` keys; 404 surfaced as a typed state)
+- [x] T120 [P] [US4] Implement `apps/lead-web/src/hooks/useSetLabel.ts` (optimistic mutation, invalidates list + details) and `apps/lead-web/src/components/leads/LabelSelect.tsx`
+- [x] T121 [P] [US3] Implement `apps/lead-web/src/hooks/useAddActivity.ts` (prepends the new entry to the cached first page, invalidates list), `apps/lead-web/src/components/leads/ActivityComposer.tsx` (type select defaulting to Note, textarea, counter, `NOTE_MAX` from shared-contracts), and `ActivityTimeline.tsx` (type icon, author, relative time with absolute `title`, "Load more")
+- [x] T122 [US2] Implement `apps/lead-web/src/components/leads/LeadDetailsCard.tsx` and `apps/lead-web/src/app/(app)/leads/[id]/page.tsx` (server component awaiting `params`, mounting a client `LeadDetailsView` in `apps/lead-web/src/components/leads/LeadDetailsView.tsx`; two columns ≥ 1024 px, stacked below; "Back to inbox" preserves the inbox query string); run T116–T118 until green
+- [x] T123 [US2] Verify no token or API key is present in client bundles: add `apps/lead-web/src/app/bundle-secrets.test.ts` (or a build-output grep step) asserting `LEAD_SERVICE_URL`, `LEAD_SOURCE_API_KEY`, and `JWT` strings are absent from `.next/static`; fix any leak
 
 **Checkpoint**: Full UI flow works manually and via component tests; `pnpm --filter @lead/lead-web test typecheck lint build` green.
 
@@ -368,7 +368,7 @@
 
 ## Phase 16: End-to-End Tests (Cucumber + Playwright)
 
-**Purpose**: Verify every story against the running compose stack ([test-plan.md](./test-plan.md) E2E table).
+**Purpose**: Verify every story against the pnpm-run applications and their local infrastructure ([test-plan.md](./test-plan.md) E2E table).
 
 - [ ] T124 Add E2E support in `end-to-end/support/`: `api-client.ts` (login helper returning a bearer token, authenticated and API-key requests via Playwright `APIRequestContext`), `kafka-publisher.ts` (kafkajs producer to `E2E_KAFKA_BROKERS`, optional DLQ consumer), `seed-data.ts` (creates a lead via `POST /leads` or a Kafka event with a fresh `eventId`, returns ids); add `publish:lead` script to `end-to-end/package.json`; update `end-to-end/cucumber.mjs` / `test:e2e` script globs for `features/leads/**`
 - [ ] T125 [P] [US6] `end-to-end/features/leads/ingestion-api.feature` + `end-to-end/step-definitions/leads/ingestion-api.steps.ts`: accepted with key; rejected without key; invalid payload rejected; lead appears unread in the assigned user's inbox (`@us6`)
@@ -380,9 +380,9 @@
 - [ ] T131 [P] [US5] `end-to-end/features/leads/search.feature` + steps: by name, email, phone formats; label filter; combined; outside date range excluded; special characters (`@us5`)
 - [ ] T132 [P] `end-to-end/features/leads/access-control.feature` + steps: no token → 401; invalid/expired token → 401; token absent from page HTML, scripts, and `localStorage` after login (`@sec`)
 - [ ] T133 `end-to-end/features/leads/ui-journey.feature` + `end-to-end/step-definitions/leads/ui-journey.steps.ts` (Playwright browser): sign in → inbox shows seeded leads → search → open lead (becomes read) → change label → add note → back to inbox shows updated state; attach screenshot/trace on failure (`@ui`)
-- [ ] T134 Wire E2E into the compose `e2e` profile and `.github/workflows/ci.yml`: seed step (`pnpm --filter lead-service seed` or `docker compose exec lead-service node dist/src/cli/seed.js`), pass the `E2E_*` variables, upload `end-to-end/reports/`; confirm `pnpm test:e2e` is green locally against `docker compose --profile e2e up --build --wait`
+- [ ] T134 Wire E2E into `.github/workflows/ci.yml`: start MongoDB, Redis, and Kafka with Docker Compose, run the applications with `pnpm dev`, seed with `pnpm --filter @lead/lead-service seed`, pass the `E2E_*` variables, run `pnpm test:e2e`, and upload `end-to-end/reports/`; confirm the same pnpm-based flow is green locally
 
-**Checkpoint**: All Cucumber features pass against the compose stack.
+**Checkpoint**: All Cucumber features pass against the pnpm-run applications.
 
 ---
 
@@ -392,7 +392,7 @@
 - [ ] T136 [P] Update `docs/system-design-architecture.md`: document the `@lead/persistence` package, port-placement rules (resolves the constitution's `TODO(PORT_PLACEMENT_RULES)`), the `updatedAt` date-range rule, the search-field approach, the Kafka event contract and DLQ, and the removed `PUT /leads/:id/view`
 - [ ] T137 [P] Add FR traceability table (FR-001–FR-033 → test files) at the end of this file and confirm every FR has at least one test; confirm SC-005, SC-007, SC-008 are covered by TC-04, TC-12, TC-03/TC-07b
 - [ ] T138 Review CI/workflows (`.github/workflows/ci.yml`, `.github/workflows/build.yml`) and `turbo.json` so `@lead/persistence` tasks, new integration suites, and E2E run on pull requests; verify Docker images still build
-- [ ] T139 Final gate: `pnpm format:check; pnpm lint; pnpm typecheck; pnpm test; pnpm test:integration; pnpm test:e2e`, then run every quickstart scenario in `specs/003-lead-management/quickstart.md` and confirm `docker compose logs` contains no PII
+- [ ] T139 Final gate: `pnpm format:check; pnpm lint; pnpm typecheck; pnpm test; pnpm test:integration; pnpm test:e2e`, then run every quickstart scenario in `specs/003-lead-management/quickstart.md` and confirm the application logs contain no PII
 
 ---
 

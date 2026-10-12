@@ -2,12 +2,33 @@ import 'server-only';
 
 import { cookies } from 'next/headers';
 
-const DEFAULT_COOKIE_NAME = 'lead_session';
+import { getSessionCookieName, getUserCookieName } from '../auth/session-config';
+
+export interface SessionProfile {
+  fullName: string;
+  email: string;
+}
 
 export async function getAccessToken(): Promise<string | undefined> {
   const cookieStore = await cookies();
-  const cookieName = process.env.SESSION_COOKIE_NAME ?? DEFAULT_COOKIE_NAME;
-  return cookieStore.get(cookieName)?.value;
+  return cookieStore.get(getSessionCookieName())?.value;
+}
+
+export async function getSessionProfile(): Promise<SessionProfile | undefined> {
+  const cookieStore = await cookies();
+  const raw = cookieStore.get(getUserCookieName())?.value;
+  if (!raw) {
+    return undefined;
+  }
+  try {
+    const parsed = JSON.parse(decodeURIComponent(raw)) as Partial<SessionProfile>;
+    if (typeof parsed.fullName === 'string' && typeof parsed.email === 'string') {
+      return { fullName: parsed.fullName, email: parsed.email };
+    }
+  } catch {
+    return undefined;
+  }
+  return undefined;
 }
 
 export function getLeadServiceUrl(): string {

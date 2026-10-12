@@ -27,6 +27,14 @@ Unauthenticated visits redirect to `/login`; `/` redirects to `/leads`.
 
 ## `/leads` Inbox
 
+The screen is divided into two main sections and several subsections, as follows:
+- Search & filter
+
+- Main content: divided into two parts:
+
+    3.  Lead list: located on the left, displaying lead cards based on search results; includes pagination at the bottom.
+    4. Lead details: located on the right, displaying specific lead information; shows a placeholder by default, with details appearing only when a lead is clicked.
+
 ```text
 ┌────────────────────────────────────────────────────────────────────────────────────────────────┐
 │ Lead Management Inbox                                                                          │
@@ -45,7 +53,7 @@ Unauthenticated visits redirect to `/login`; `/` redirects to `/leads`.
 │ Phone: +84912223344 - Email: tranvanan@gmail.com       │                                       │
 │ ** liên hệ lại tôi **                           3m ago │  
 ├────────────────────────────────────────────────────────────────────────────────────────────────┤
-│ Showing 1–0 of 248      Rows [20 ▾]        [‹ Prev] 1 2 3 … 13 [Next ›]                        │
+│       [‹ Prev] 1 2 3 … 13 [Next ›]         Rows [20 ▾] │
 ├────────────────────────────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -64,6 +72,11 @@ Unauthenticated visits redirect to `/login`; `/` redirects to `/leads`.
 | Freshness          | Refetch on window focus; after returning from details the inbox query is invalidated so the lead shows as read   |
 
 ## `/leads` Lead details
+
+Reusing the Inbox screen: clicking on a lead card renders the Lead details view as shown below.
+- The top section displays the customer's name on the left side of the Lead details box, with action options (such as setting labels, adding notes, or logging activities) on the right.
+- The middle section contains detailed information about the lead.
+- The bottom section displays an activity log in a timeline format, with the most recent entries at the top.
 
 ```text
 ┌────────────────────────────────────────────────────────────────────────────────────────────────┐

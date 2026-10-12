@@ -1,8 +1,11 @@
+import { Suspense } from 'react';
+
+import { InboxView } from '@/components/leads/InboxView';
+
 export default function LeadsInboxPage() {
   return (
-    <main>
-      <h1>Lead Inbox</h1>
-      <p>Lead list placeholder.</p>
-    </main>
+    <Suspense fallback={<div aria-busy="true" className="h-64 rounded-md border bg-background" />}>
+      <InboxView />
+    </Suspense>
   );
 }
