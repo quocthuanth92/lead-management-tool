@@ -370,17 +370,17 @@
 
 **Purpose**: Verify every story against the pnpm-run applications and their local infrastructure ([test-plan.md](./test-plan.md) E2E table).
 
-- [ ] T124 Add E2E support in `end-to-end/support/`: `api-client.ts` (login helper returning a bearer token, authenticated and API-key requests via Playwright `APIRequestContext`), `kafka-publisher.ts` (kafkajs producer to `E2E_KAFKA_BROKERS`, optional DLQ consumer), `seed-data.ts` (creates a lead via `POST /leads` or a Kafka event with a fresh `eventId`, returns ids); add `publish:lead` script to `end-to-end/package.json`; update `end-to-end/cucumber.mjs` / `test:e2e` script globs for `features/leads/**`
-- [ ] T125 [P] [US6] `end-to-end/features/leads/ingestion-api.feature` + `end-to-end/step-definitions/leads/ingestion-api.steps.ts`: accepted with key; rejected without key; invalid payload rejected; lead appears unread in the assigned user's inbox (`@us6`)
-- [ ] T126 [P] [US6] `end-to-end/features/leads/ingestion-kafka.feature` + steps: event appears in the inbox within 60 s; duplicate delivery → one lead; invalid event → one DLQ message (`@us6`)
-- [ ] T127 [P] [US1] `end-to-end/features/leads/inbox.feature` + steps: unread first/newest first; default 6-month range; pagination (`page`, `limit`, `total`); empty state; user B cannot see A's leads (`@us1`)
-- [ ] T128 [P] [US2] `end-to-end/features/leads/details-read.feature` + steps: opening marks read and inbox reflects it; foreign lead → 404 (`@us2`)
-- [ ] T129 [P] [US3] `end-to-end/features/leads/activity.feature` + steps: two notes appear newest first; empty note rejected; no edit/delete endpoints; lead moves up in the inbox (`@us3`)
-- [ ] T130 [P] [US4] `end-to-end/features/leads/label.feature` + steps: set then change label → exactly one; invalid label rejected (`@us4`)
-- [ ] T131 [P] [US5] `end-to-end/features/leads/search.feature` + steps: by name, email, phone formats; label filter; combined; outside date range excluded; special characters (`@us5`)
-- [ ] T132 [P] `end-to-end/features/leads/access-control.feature` + steps: no token → 401; invalid/expired token → 401; token absent from page HTML, scripts, and `localStorage` after login (`@sec`)
-- [ ] T133 `end-to-end/features/leads/ui-journey.feature` + `end-to-end/step-definitions/leads/ui-journey.steps.ts` (Playwright browser): sign in → inbox shows seeded leads → search → open lead (becomes read) → change label → add note → back to inbox shows updated state; attach screenshot/trace on failure (`@ui`)
-- [ ] T134 Wire E2E into `.github/workflows/ci.yml`: start MongoDB, Redis, and Kafka with Docker Compose, run the applications with `pnpm dev`, seed with `pnpm --filter @lead/lead-service seed`, pass the `E2E_*` variables, run `pnpm test:e2e`, and upload `end-to-end/reports/`; confirm the same pnpm-based flow is green locally
+- [x] T124 Add E2E support in `end-to-end/support/`: `api-client.ts` (login helper returning a bearer token, authenticated and API-key requests via Playwright `APIRequestContext`), `kafka-publisher.ts` (kafkajs producer to `E2E_KAFKA_BROKERS`, optional DLQ consumer), `seed-data.ts` (creates a lead via `POST /leads` or a Kafka event with a fresh `eventId`, returns ids); add `publish:lead` script to `end-to-end/package.json`; update `end-to-end/cucumber.mjs` / `test:e2e` script globs for `features/leads/**`
+- [x] T125 [P] [US6] `end-to-end/features/leads/ingestion-api.feature` + `end-to-end/step-definitions/leads/ingestion-api.steps.ts`: accepted with key; rejected without key; invalid payload rejected; lead appears unread in the assigned user's inbox (`@us6`)
+- [x] T126 [P] [US6] `end-to-end/features/leads/ingestion-kafka.feature` + steps: event appears in the inbox within 60 s; duplicate delivery → one lead; invalid event → one DLQ message (`@us6`)
+- [x] T127 [P] [US1] `end-to-end/features/leads/inbox.feature` + steps: unread first/newest first; default 6-month range; pagination (`page`, `limit`, `total`); empty state; user B cannot see A's leads (`@us1`)
+- [x] T128 [P] [US2] `end-to-end/features/leads/details-read.feature` + steps: opening marks read and inbox reflects it; foreign lead → 404 (`@us2`)
+- [x] T129 [P] [US3] `end-to-end/features/leads/activity.feature` + steps: two notes appear newest first; empty note rejected; no edit/delete endpoints; lead moves up in the inbox (`@us3`)
+- [x] T130 [P] [US4] `end-to-end/features/leads/label.feature` + steps: set then change label → exactly one; invalid label rejected (`@us4`)
+- [x] T131 [P] [US5] `end-to-end/features/leads/search.feature` + steps: by name, email, phone formats; label filter; combined; outside date range excluded; special characters (`@us5`)
+- [x] T132 [P] `end-to-end/features/leads/access-control.feature` + steps: no token → 401; invalid/expired token → 401; token absent from page HTML, scripts, and `localStorage` after login (`@sec`)
+- [x] T133 `end-to-end/features/leads/ui-journey.feature` + `end-to-end/step-definitions/leads/ui-journey.steps.ts` (Playwright browser): sign in → inbox shows seeded leads → search → open lead (becomes read) → change label → add note → back to inbox shows updated state; attach screenshot/trace on failure (`@ui`)
+- [x] T134 Wire E2E into `.github/workflows/ci.yml`: start MongoDB, Redis, and Kafka with Docker Compose, run the applications with `pnpm dev`, seed with `pnpm --filter @lead/lead-service seed`, pass the `E2E_*` variables, run `pnpm test:e2e`, and upload `end-to-end/reports/`; confirm the same pnpm-based flow is green locally
 
 **Checkpoint**: All Cucumber features pass against the pnpm-run applications.
 
