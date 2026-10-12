@@ -13,6 +13,40 @@ import { randomDigits } from './kafka-publisher';
 import { waitUntil } from './wait';
 
 const LETTERS = 'abcdefghijklmnopqrstuvwxyz';
+const FIRST_NAMES = [
+  'Ava',
+  'Liam',
+  'Noah',
+  'Emma',
+  'Olivia',
+  'Lucas',
+  'Sophia',
+  'Mason',
+  'Isabella',
+  'Ethan',
+  'Mia',
+  'James',
+  'Charlotte',
+  'Benjamin',
+  'Amelia'
+];
+const LAST_NAMES = [
+  'Smith',
+  'Johnson',
+  'Brown',
+  'Taylor',
+  'Wilson',
+  'Clark',
+  'Anderson',
+  'Thomas',
+  'Moore',
+  'Martin',
+  'Lee',
+  'Walker',
+  'Harris',
+  'Young',
+  'Allen'
+];
 
 export interface ScenarioLead {
   token: string;
@@ -32,16 +66,26 @@ export interface LocatedLead {
 // Letters only, so the token survives name folding and infix search.
 export function uniqueToken(): string {
   let token = '';
-  for (const byte of crypto.getRandomValues(new Uint8Array(10))) {
+  for (const byte of crypto.getRandomValues(new Uint8Array(5))) {
     token += LETTERS[byte % LETTERS.length];
   }
   return token;
 }
 
+// Generates a realistic, English-sounding name for a lead while keeping the token visible for search.
+export function buildLeadName(token: string): string {
+  const randomValues = crypto.getRandomValues(new Uint32Array(2));
+  const firstIndex = (randomValues[0] ?? 0) % FIRST_NAMES.length;
+  const lastIndex = (randomValues[1] ?? 0) % LAST_NAMES.length;
+  const firstName = FIRST_NAMES[firstIndex];
+  const lastName = LAST_NAMES[lastIndex];
+  return `${firstName} ${lastName} ${token}`;
+}
+
 export function buildLeadPayload(token: string = uniqueToken()): LeadPayload & { token: string } {
   return {
     token,
-    fullName: `Lead ${token}`,
+    fullName: buildLeadName(token),
     phone: `+8490${randomDigits(7)}`,
     email: `${token}@e2e.example.test`,
     message: `E2E enquiry ${token}`
@@ -63,7 +107,9 @@ export async function locateLeadOwner(
         const account = getSalespersonCredentials(label);
         const accessToken = await getAccessToken(account);
         const result = await searchLeads(api, accessToken, { q: token });
-        const item = result.body.items?.find((candidate) => candidate.customerName.includes(token));
+        const item = result.body.items?.find(
+          (candidate) => candidate.customerName?.includes(token) === true
+        );
         if (item) {
           return { owner: account, item };
         }

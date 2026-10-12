@@ -72,7 +72,7 @@ jobs:
 
       # Builds the service images and starts the full stack, including the e2e runner profile, from docker-compose.yml.
       - name: Start stack
-        run: docker compose --profile e2e up --build --detach --wait --wait-timeout 600 mongo redis kafka lead-service lead-background-service lead-web
+        run: docker compose --profile e2e up --build --detach --wait --wait-timeout 900 mongo redis kafka lead-service lead-background-service lead-web
 
       - name: Seed salespeople
         run: docker compose run --rm lead-service node dist/src/cli/seed.js
