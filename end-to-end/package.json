@@ -7,7 +7,6 @@
     "build": "echo \"No build step for e2e\"",
     "lint": "eslint \"**/*.{ts,js}\"",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "test": "pnpm run test:e2e",
     "test:e2e": "tsx --watch ./node_modules/@cucumber/cucumber/bin/cucumber.js \"features/**/*.feature\" --import \"step-definitions/**/*.ts\" --import \"support/**/*.ts\" --format progress --format html:reports/cucumber-report.html --format json:reports/cucumber-report.json",
     "publish:lead": "tsx scripts/publish-lead.ts"
   },

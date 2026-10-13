@@ -61,7 +61,7 @@ flowchart LR
     web <-- REST/JSON --> service
     service -- cache-aside --> redis
     redis -- cache miss / write --> database
-    dealer -- "POST /leads + API key" --> service  
+    dealer -- "push event leads " --> kafka  
     kafka -- JSON --> consumer
     consumer -- writes leads directly --> database
 ```
@@ -141,7 +141,8 @@ sequenceDiagram
     end
     BL-->>CL: 200 items, total  
     CL-->>DLW: 201 activity  
-    DLW-->>ULW: HTTP response      ULW-->>C: HTTP response
+    DLW-->>ULW: HTTP response      
+    ULW-->>C: HTTP response
 ```
 
 
@@ -218,7 +219,8 @@ sequenceDiagram
     BL->>R: DEL lead key, INCR version
     BL-->>CL: 201 activity  
     CL-->>DLW: 201 activity  
-    DLW-->>ULW: HTTP response     
+    DLW-->>ULW: HTTP response
+    ULW-->>C: HTTP response     
 ``` 
     CL-->>DLW: HTTP response
 AfteULWthe Cte, the lead's `updatedAt` is refreshed, so the lead moves to the top of the Lead Inbox.
@@ -383,4 +385,4 @@ The design meets the MVP requirements with a simple architecture, `Browser → l
 
 **To confirm:** the rule for assigning leads to salespeople (for both `POST /leads` and Kafka); the Kafka event format (an event ID is needed to prevent duplicates); the initial list of labels.
 
-**Future work:** real-time notification of new leads, follow-up reminders, multiple labels per lead.
+
