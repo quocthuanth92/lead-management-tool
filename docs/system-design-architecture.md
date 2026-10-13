@@ -140,8 +140,8 @@ sequenceDiagram
         BL->>R: Create search index and SET cache (TTL 60s)
     end
     BL-->>CL: 200 items, total  
-    CL-->>DLW: HTTP response  
-    CL-->>DLW: HTTP response
+    CL-->>DLW: 201 activity  
+    DLW-->>ULW: HTTP response      ULW-->>C: HTTP response
 ```
 
 
@@ -181,9 +181,10 @@ sequenceDiagram
         RL->>BL: return results
         BL->>R: Create search index and SET cache (TTL 60s)
     end
-    BL-->>CL: 200 items, total  
-    CL-->>DLW: HTTP response  
-    CL-->>DLW: HTTP response
+    BL-->>CL: 200 items, total  01 activity  
+    CL-->>DLW: 201 activity  
+    DLW-->>ULW: HTTP response
+    ULW-->>C: HTTP response
 ```
 
 ### 2. Activity action (log a new activity)
@@ -201,7 +202,7 @@ sequenceDiagram
     participant BL as Business-layer
     participant RL as Repository-layer 
     end
-    participant R as Redis Search
+    participant R as Redis 
     participant M as MongoDB  
     C->>ULW: HTTP /lead-management      
     ULW->>ULW: verify JWT
@@ -217,9 +218,10 @@ sequenceDiagram
     BL->>R: DEL lead key, INCR version
     BL-->>CL: 201 activity  
     CL-->>DLW: 201 activity  
+    DLW-->>ULW: HTTP response     
+``` 
     CL-->>DLW: HTTP response
-```
-After the write, the lead's `updatedAt` is refreshed, so the lead moves to the top of the Lead Inbox.
+AfteULWthe Cte, the lead's `updatedAt` is refreshed, so the lead moves to the top of the Lead Inbox.
 
 # Database Design
 

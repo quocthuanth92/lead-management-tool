@@ -8,7 +8,7 @@
     "start": "pnpm next start",
     "lint": "eslint \"src/**/*.{ts,tsx}\"",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "test": "pnpm jest --runInBand --config jest.config.cjs --coverage"
+    "test": "pnpm jest --runInBand --config jest.config.cjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.8.0",
